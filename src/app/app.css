@@ -21,6 +21,12 @@
   padding: 12px 0 24px;
 }
 
+.session {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .eyebrow {
   color: #336b62;
   font-size: 13px;
@@ -54,6 +60,7 @@ h2 {
   white-space: nowrap;
 }
 
+.login-panel,
 .search-panel,
 .panel {
   background: #ffffff;
@@ -62,8 +69,26 @@ h2 {
   box-shadow: 0 10px 24px rgba(20, 46, 41, 0.08);
 }
 
+.login-panel,
 .search-panel {
   padding: 22px;
+}
+
+.login-panel {
+  display: grid;
+  grid-template-columns: 1fr minmax(260px, 420px);
+  gap: 24px;
+}
+
+.login-panel p {
+  color: #5d716c;
+  line-height: 1.5;
+  margin: 10px 0 0;
+}
+
+.login-grid {
+  display: grid;
+  gap: 10px;
 }
 
 label {
@@ -97,6 +122,11 @@ button {
   cursor: pointer;
   font-weight: 700;
   padding: 0 18px;
+}
+
+.ghost-button {
+  background: #e8f1ee;
+  color: #123d36;
 }
 
 button:disabled {
@@ -192,6 +222,7 @@ dd {
   }
 
   .topbar,
+  .login-panel,
   .search-row {
     align-items: stretch;
     grid-template-columns: 1fr;

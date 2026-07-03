@@ -9,16 +9,53 @@ import { RepositorioClinicoService } from './services/repositorio-clinico';
   styleUrl: './app.css'
 })
 export class App {
+  username = 'admin';
+  password = 'admin123';
   idPacienteRegional = 'REG-0001';
   historia?: HistoriaClinicaRegional;
   cargando = false;
   error = '';
+  autenticado = false;
+  usuarioActivo = '';
 
   pacientesDemo = ['REG-0001', 'REG-0002', 'REG-0003'];
 
-  constructor(private readonly repositorioClinico: RepositorioClinicoService) {}
+  constructor(private readonly repositorioClinico: RepositorioClinicoService) {
+    this.autenticado = this.repositorioClinico.estaAutenticado();
+    this.usuarioActivo = this.autenticado ? this.username : '';
+  }
+
+  login(): void {
+    this.cargando = true;
+    this.error = '';
+    this.repositorioClinico.login(this.username.trim(), this.password).subscribe({
+      next: (response) => {
+        this.repositorioClinico.guardarToken(response.token);
+        this.autenticado = true;
+        this.usuarioActivo = response.username;
+        this.cargando = false;
+        this.consultar();
+      },
+      error: () => {
+        this.error = 'Credenciales invalidas. Use admin / admin123.';
+        this.cargando = false;
+      }
+    });
+  }
+
+  cerrarSesion(): void {
+    this.repositorioClinico.cerrarSesion();
+    this.autenticado = false;
+    this.historia = undefined;
+    this.error = '';
+  }
 
   consultar(): void {
+    if (!this.autenticado) {
+      this.error = 'Inicie sesion para consultar el repositorio clinico.';
+      return;
+    }
+
     const id = this.idPacienteRegional.trim();
     if (!id) {
       this.error = 'Ingrese un identificador regional de paciente.';
@@ -35,7 +72,7 @@ export class App {
         this.cargando = false;
       },
       error: () => {
-        this.error = 'No se pudo consultar el Repositorio Clinico Regional.';
+        this.error = 'No se pudo consultar el Repositorio Clinico Regional. Revise el token o el backend.';
         this.cargando = false;
       }
     });

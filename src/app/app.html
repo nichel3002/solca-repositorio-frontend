@@ -4,10 +4,29 @@
       <p class="eyebrow">SOLCA Cuenca · Manabi · Quito</p>
       <h1>Repositorio Clinico Regional</h1>
     </div>
-    <span class="status">Microservicios REST</span>
+    <div class="session" *ngIf="autenticado">
+      <span class="status">JWT activo · {{ usuarioActivo }}</span>
+      <button type="button" class="ghost-button" (click)="cerrarSesion()">Salir</button>
+    </div>
   </section>
 
-  <section class="search-panel">
+  <section class="login-panel" *ngIf="!autenticado">
+    <div>
+      <h2>Autenticacion JWT</h2>
+      <p>Ingrese con el usuario de demostracion para consultar el repositorio regional.</p>
+    </div>
+    <div class="login-grid">
+      <label for="usuario">Usuario</label>
+      <input id="usuario" name="usuario" [(ngModel)]="username" autocomplete="username" />
+      <label for="clave">Clave</label>
+      <input id="clave" name="clave" [(ngModel)]="password" type="password" autocomplete="current-password" (keyup.enter)="login()" />
+      <button type="button" (click)="login()" [disabled]="cargando">
+        {{ cargando ? 'Validando...' : 'Ingresar' }}
+      </button>
+    </div>
+  </section>
+
+  <section class="search-panel" *ngIf="autenticado">
     <label for="paciente">Paciente Maestro Regional</label>
     <div class="search-row">
       <input
