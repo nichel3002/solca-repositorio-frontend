@@ -1,0 +1,81 @@
+<main class="page-shell">
+  <section class="topbar">
+    <div>
+      <p class="eyebrow">SOLCA Cuenca · Manabi · Quito</p>
+      <h1>Repositorio Clinico Regional</h1>
+    </div>
+    <span class="status">Microservicios REST</span>
+  </section>
+
+  <section class="search-panel">
+    <label for="paciente">Paciente Maestro Regional</label>
+    <div class="search-row">
+      <input
+        id="paciente"
+        name="paciente"
+        [(ngModel)]="idPacienteRegional"
+        placeholder="Ejemplo: REG-0001"
+        (keyup.enter)="consultar()"
+      />
+      <button type="button" (click)="consultar()" [disabled]="cargando">
+        {{ cargando ? 'Consultando...' : 'Consultar' }}
+      </button>
+    </div>
+    <div class="quick-actions">
+      <button type="button" *ngFor="let paciente of pacientesDemo" (click)="seleccionarPaciente(paciente)">
+        {{ paciente }}
+      </button>
+    </div>
+  </section>
+
+  <p class="error" *ngIf="error">{{ error }}</p>
+
+  <section class="result-grid" *ngIf="historia">
+    <article class="panel patient-panel">
+      <h2>Paciente</h2>
+      <dl>
+        <ng-container *ngFor="let campo of campos(historia.paciente)">
+          <dt>{{ campo }}</dt>
+          <dd>{{ historia.paciente[campo] }}</dd>
+        </ng-container>
+      </dl>
+    </article>
+
+    <article class="panel">
+      <h2>Consultas Clinicas</h2>
+      <div class="record" *ngFor="let consulta of historia.consultas">
+        <p *ngFor="let campo of campos(consulta)">
+          <strong>{{ campo }}:</strong> {{ consulta[campo] }}
+        </p>
+      </div>
+      <p class="empty" *ngIf="historia.consultas.length === 0">Sin consultas registradas.</p>
+    </article>
+
+    <article class="panel">
+      <h2>Laboratorio Clinico</h2>
+      <div class="record" *ngFor="let resultado of historia.laboratorio">
+        <p *ngFor="let campo of campos(resultado)">
+          <strong>{{ campo }}:</strong> {{ resultado[campo] }}
+        </p>
+      </div>
+      <p class="empty" *ngIf="historia.laboratorio.length === 0">Sin resultados registrados.</p>
+    </article>
+
+    <article class="panel">
+      <h2>Imagenologia / PACS</h2>
+      <div class="record" *ngFor="let imagen of historia.imagenes">
+        <p *ngFor="let campo of campos(imagen)">
+          <strong>{{ campo }}:</strong> {{ imagen[campo] }}
+        </p>
+      </div>
+      <p class="empty" *ngIf="historia.imagenes.length === 0">Sin estudios registrados.</p>
+    </article>
+  </section>
+
+  <section class="panel integration-errors" *ngIf="historia && campos(historia.errores).length > 0">
+    <h2>Errores de integracion</h2>
+    <p *ngFor="let servicio of campos(historia.errores)">
+      <strong>{{ servicio }}:</strong> {{ historia.errores[servicio] }}
+    </p>
+  </section>
+</main>
