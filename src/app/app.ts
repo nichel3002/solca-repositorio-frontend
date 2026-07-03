@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { HistoriaClinicaRegional, RegistroClinico } from './models/historia-clinica.model';
 import { RepositorioClinicoService } from './services/repositorio-clinico';
 
@@ -21,7 +21,10 @@ export class App {
 
   pacientesDemo = ['REG-0001', 'REG-0002', 'REG-0003'];
 
-  constructor(private readonly repositorioClinico: RepositorioClinicoService) {
+  constructor(
+    private readonly repositorioClinico: RepositorioClinicoService,
+    private readonly changeDetector: ChangeDetectorRef
+  ) {
     this.autenticado = this.repositorioClinico.estaAutenticado();
     this.usuarioActivo = this.autenticado ? this.username : '';
   }
@@ -36,10 +39,12 @@ export class App {
         this.usuarioActivo = response.username;
         this.cargando = false;
         this.error = '';
+        this.changeDetector.detectChanges();
       },
       error: () => {
         this.error = 'Credenciales invalidas. Use admin / admin123.';
         this.cargando = false;
+        this.changeDetector.detectChanges();
       }
     });
   }
@@ -49,6 +54,7 @@ export class App {
     this.autenticado = false;
     this.historia = undefined;
     this.error = '';
+    this.changeDetector.detectChanges();
   }
 
   consultar(): void {
@@ -73,11 +79,13 @@ export class App {
         this.historia = historia;
         this.cargando = false;
         this.consultando = false;
+        this.changeDetector.detectChanges();
       },
       error: () => {
         this.error = 'No se pudo consultar el Repositorio Clinico Regional. Revise el token o el backend.';
         this.cargando = false;
         this.consultando = false;
+        this.changeDetector.detectChanges();
       }
     });
   }
