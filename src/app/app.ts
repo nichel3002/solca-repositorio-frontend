@@ -14,6 +14,7 @@ export class App {
   idPacienteRegional = 'REG-0001';
   historia?: HistoriaClinicaRegional;
   cargando = false;
+  consultando = false;
   error = '';
   autenticado = false;
   usuarioActivo = '';
@@ -34,7 +35,7 @@ export class App {
         this.autenticado = true;
         this.usuarioActivo = response.username;
         this.cargando = false;
-        this.consultar();
+        this.error = '';
       },
       error: () => {
         this.error = 'Credenciales invalidas. Use admin / admin123.';
@@ -63,6 +64,7 @@ export class App {
     }
 
     this.cargando = true;
+    this.consultando = true;
     this.error = '';
     this.historia = undefined;
 
@@ -70,10 +72,12 @@ export class App {
       next: (historia) => {
         this.historia = historia;
         this.cargando = false;
+        this.consultando = false;
       },
       error: () => {
         this.error = 'No se pudo consultar el Repositorio Clinico Regional. Revise el token o el backend.';
         this.cargando = false;
+        this.consultando = false;
       }
     });
   }

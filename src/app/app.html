@@ -36,8 +36,8 @@
         placeholder="Ejemplo: REG-0001"
         (keyup.enter)="consultar()"
       />
-      <button type="button" (click)="consultar()" [disabled]="cargando">
-        {{ cargando ? 'Consultando...' : 'Consultar' }}
+      <button type="button" (click)="consultar()" [disabled]="consultando">
+        {{ consultando ? 'Consultando...' : 'Consultar' }}
       </button>
     </div>
     <div class="quick-actions">
