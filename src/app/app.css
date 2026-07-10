@@ -7,6 +7,7 @@
 }
 
 .topbar,
+.auth-panel,
 .search-panel,
 .panel {
   max-width: 1180px;
@@ -19,12 +20,6 @@
   justify-content: space-between;
   gap: 18px;
   padding: 12px 0 24px;
-}
-
-.session {
-  display: flex;
-  align-items: center;
-  gap: 10px;
 }
 
 .eyebrow {
@@ -52,7 +47,7 @@ h2 {
 }
 
 .status {
-  background: #0d5c4f;
+  background: #7a3f18;
   border-radius: 6px;
   color: #ffffff;
   font-weight: 700;
@@ -60,7 +55,22 @@ h2 {
   white-space: nowrap;
 }
 
-.login-panel,
+.status-ok {
+  background: #0d5c4f;
+}
+
+.auth-panel {
+  align-items: end;
+  background: #ffffff;
+  border: 1px solid #d8e3df;
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr 220px auto;
+  margin-bottom: 16px;
+  padding: 18px;
+}
+
 .search-panel,
 .panel {
   background: #ffffff;
@@ -69,26 +79,8 @@ h2 {
   box-shadow: 0 10px 24px rgba(20, 46, 41, 0.08);
 }
 
-.login-panel,
 .search-panel {
   padding: 22px;
-}
-
-.login-panel {
-  display: grid;
-  grid-template-columns: 1fr minmax(260px, 420px);
-  gap: 24px;
-}
-
-.login-panel p {
-  color: #5d716c;
-  line-height: 1.5;
-  margin: 10px 0 0;
-}
-
-.login-grid {
-  display: grid;
-  gap: 10px;
 }
 
 label {
@@ -104,15 +96,18 @@ label {
 }
 
 input,
+select,
 button {
   border-radius: 6px;
   font: inherit;
   min-height: 44px;
 }
 
-input {
+input,
+select {
   border: 1px solid #b8cac5;
   padding: 0 12px;
+  width: 100%;
 }
 
 button {
@@ -122,11 +117,6 @@ button {
   cursor: pointer;
   font-weight: 700;
   padding: 0 18px;
-}
-
-.ghost-button {
-  background: #e8f1ee;
-  color: #123d36;
 }
 
 button:disabled {
@@ -139,6 +129,24 @@ button:disabled {
   flex-wrap: wrap;
   gap: 10px;
   margin-top: 14px;
+}
+
+.criteria-row {
+  display: flex;
+  gap: 18px;
+  margin-bottom: 14px;
+}
+
+.criteria-row label {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  margin: 0;
+}
+
+.criteria-row input {
+  min-height: auto;
+  width: auto;
 }
 
 .quick-actions button {
@@ -216,13 +224,24 @@ dd {
   margin-top: 0;
 }
 
+.audit-panel {
+  margin-top: 18px;
+}
+
+.panel-title-row {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 @media (max-width: 760px) {
   .page-shell {
     padding: 18px;
   }
 
   .topbar,
-  .login-panel,
+  .auth-panel,
   .search-row {
     align-items: stretch;
     grid-template-columns: 1fr;

@@ -1,5 +1,5 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
-import { HistoriaClinicaRegional, RegistroClinico } from './models/historia-clinica.model';
+import { Component } from '@angular/core';
+import { AuthResponse, HistoriaClinicaRegional, RegistroClinico } from './models/historia-clinica.model';
 import { RepositorioClinicoService } from './services/repositorio-clinico';
 
 @Component({
@@ -9,90 +9,87 @@ import { RepositorioClinicoService } from './services/repositorio-clinico';
   styleUrl: './app.css'
 })
 export class App {
-  username = 'admin';
-  password = 'admin123';
   idPacienteRegional = 'REG-0001';
+  criterioBusqueda: 'id' | 'cedula' = 'id';
+  username = 'medico@solca.local';
+  role: 'ADMIN' | 'MEDICO' | 'LABORATORIO' = 'MEDICO';
+  sesion?: AuthResponse;
   historia?: HistoriaClinicaRegional;
+  auditoria: RegistroClinico[] = [];
   cargando = false;
-  consultando = false;
+  cargandoAuditoria = false;
   error = '';
-  autenticado = false;
-  usuarioActivo = '';
 
   pacientesDemo = ['REG-0001', 'REG-0002', 'REG-0003'];
 
-  constructor(
-    private readonly repositorioClinico: RepositorioClinicoService,
-    private readonly changeDetector: ChangeDetectorRef
-  ) {
-    this.autenticado = this.repositorioClinico.estaAutenticado();
-    this.usuarioActivo = this.autenticado ? this.username : '';
-  }
+  constructor(private readonly repositorioClinico: RepositorioClinicoService) {}
 
-  login(): void {
-    this.cargando = true;
+  ingresar(): void {
     this.error = '';
-    this.repositorioClinico.login(this.username.trim(), this.password).subscribe({
-      next: (response) => {
-        this.repositorioClinico.guardarToken(response.token);
-        this.autenticado = true;
-        this.usuarioActivo = response.username;
-        this.cargando = false;
-        this.error = '';
-        this.changeDetector.detectChanges();
+    this.repositorioClinico.login(this.username, this.role).subscribe({
+      next: (sesion) => {
+        this.sesion = sesion;
+        this.auditoria = [];
       },
       error: () => {
-        this.error = 'Credenciales invalidas. Use admin / admin123.';
-        this.cargando = false;
-        this.changeDetector.detectChanges();
+        this.error = 'No se pudo iniciar sesion con el rol seleccionado.';
       }
     });
   }
 
-  cerrarSesion(): void {
-    this.repositorioClinico.cerrarSesion();
-    this.autenticado = false;
-    this.historia = undefined;
-    this.error = '';
-    this.changeDetector.detectChanges();
-  }
-
   consultar(): void {
-    if (!this.autenticado) {
-      this.error = 'Inicie sesion para consultar el repositorio clinico.';
+    const id = this.idPacienteRegional.trim();
+    if (!this.sesion) {
+      this.error = 'Seleccione un rol e inicie sesion antes de consultar.';
       return;
     }
 
-    const id = this.idPacienteRegional.trim();
     if (!id) {
-      this.error = 'Ingrese un identificador regional de paciente.';
+      this.error = 'Ingrese una cedula o un identificador regional de paciente.';
       return;
     }
 
     this.cargando = true;
-    this.consultando = true;
     this.error = '';
     this.historia = undefined;
 
-    this.repositorioClinico.obtenerHistoria(id).subscribe({
+    const consulta = this.criterioBusqueda === 'cedula'
+      ? this.repositorioClinico.obtenerHistoriaPorCedula(id, this.sesion.token)
+      : this.repositorioClinico.obtenerHistoriaPorId(id, this.sesion.token);
+
+    consulta.subscribe({
       next: (historia) => {
         this.historia = historia;
         this.cargando = false;
-        this.consultando = false;
-        this.changeDetector.detectChanges();
       },
       error: () => {
-        this.error = 'No se pudo consultar el Repositorio Clinico Regional. Revise el token o el backend.';
+        this.error = 'No se pudo consultar el Repositorio Clinico Regional.';
         this.cargando = false;
-        this.consultando = false;
-        this.changeDetector.detectChanges();
       }
     });
   }
 
   seleccionarPaciente(idPacienteRegional: string): void {
+    this.criterioBusqueda = 'id';
     this.idPacienteRegional = idPacienteRegional;
     this.consultar();
+  }
+
+  cargarAuditoria(): void {
+    if (!this.sesion || this.sesion.role !== 'ADMIN') {
+      return;
+    }
+    this.cargandoAuditoria = true;
+    this.repositorioClinico.obtenerAuditoria(this.sesion.token).subscribe({
+      next: (auditoria) => {
+        this.auditoria = auditoria;
+        this.cargandoAuditoria = false;
+      },
+      error: () => {
+        this.error = 'No se pudo consultar la auditoria. Requiere rol ADMIN.';
+        this.cargandoAuditoria = false;
+      }
+    });
   }
 
   campos(registro: RegistroClinico): string[] {

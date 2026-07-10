@@ -4,40 +4,49 @@
       <p class="eyebrow">SOLCA Cuenca · Manabi · Quito</p>
       <h1>Repositorio Clinico Regional</h1>
     </div>
-    <div class="session" *ngIf="autenticado">
-      <span class="status">JWT activo · {{ usuarioActivo }}</span>
-      <button type="button" class="ghost-button" (click)="cerrarSesion()">Salir</button>
-    </div>
+    <span class="status" [class.status-ok]="sesion">
+      {{ sesion ? ('JWT activo · ' + sesion.role) : 'Sesion requerida' }}
+    </span>
   </section>
 
-  <section class="login-panel" *ngIf="!autenticado">
+  <section class="auth-panel">
     <div>
-      <h2>Autenticacion JWT</h2>
-      <p>Ingrese con el usuario de demostracion para consultar el repositorio regional.</p>
-    </div>
-    <div class="login-grid">
       <label for="usuario">Usuario</label>
-      <input id="usuario" name="usuario" [(ngModel)]="username" autocomplete="username" />
-      <label for="clave">Clave</label>
-      <input id="clave" name="clave" [(ngModel)]="password" type="password" autocomplete="current-password" (keyup.enter)="login()" />
-      <button type="button" (click)="login()" [disabled]="cargando">
-        {{ cargando ? 'Validando...' : 'Ingresar' }}
-      </button>
+      <input id="usuario" name="usuario" [(ngModel)]="username" placeholder="usuario@solca.local" />
     </div>
+    <div>
+      <label for="rol">Rol</label>
+      <select id="rol" name="rol" [(ngModel)]="role">
+        <option value="MEDICO">MEDICO</option>
+        <option value="LABORATORIO">LABORATORIO</option>
+        <option value="ADMIN">ADMIN</option>
+      </select>
+    </div>
+    <button type="button" (click)="ingresar()">Ingresar</button>
   </section>
 
-  <section class="search-panel" *ngIf="autenticado">
-    <label for="paciente">Paciente Maestro Regional</label>
+  <section class="search-panel">
+    <div class="criteria-row">
+      <label>
+        <input type="radio" name="criterio" value="id" [(ngModel)]="criterioBusqueda" />
+        ID regional
+      </label>
+      <label>
+        <input type="radio" name="criterio" value="cedula" [(ngModel)]="criterioBusqueda" />
+        Cedula
+      </label>
+    </div>
+    <label for="paciente">{{ criterioBusqueda === 'cedula' ? 'Cedula del paciente' : 'Paciente Maestro Regional' }}</label>
     <div class="search-row">
       <input
         id="paciente"
         name="paciente"
         [(ngModel)]="idPacienteRegional"
-        placeholder="Ejemplo: REG-0001"
+        [placeholder]="criterioBusqueda === 'cedula' ? 'Ejemplo: 0102030405' : 'Ejemplo: REG-0001'"
         (keyup.enter)="consultar()"
       />
-      <button type="button" (click)="consultar()" [disabled]="consultando">
-        {{ consultando ? 'Consultando...' : 'Consultar' }}
+      <button type="button" (click)="consultar()" [disabled]="cargando">
+        {{ cargando ? 'Consultando...' : 'Consultar' }}
       </button>
     </div>
     <div class="quick-actions">
@@ -92,9 +101,24 @@
   </section>
 
   <section class="panel integration-errors" *ngIf="historia && campos(historia.errores).length > 0">
-    <h2>Errores de integracion</h2>
+    <h2>Servicios no disponibles</h2>
     <p *ngFor="let servicio of campos(historia.errores)">
       <strong>{{ servicio }}:</strong> {{ historia.errores[servicio] }}
     </p>
+  </section>
+
+  <section class="panel audit-panel" *ngIf="sesion?.role === 'ADMIN'">
+    <div class="panel-title-row">
+      <h2>Auditoria basica</h2>
+      <button type="button" (click)="cargarAuditoria()" [disabled]="cargandoAuditoria">
+        {{ cargandoAuditoria ? 'Cargando...' : 'Ver auditoria' }}
+      </button>
+    </div>
+    <div class="record" *ngFor="let registro of auditoria">
+      <p *ngFor="let campo of campos(registro)">
+        <strong>{{ campo }}:</strong> {{ registro[campo] }}
+      </p>
+    </div>
+    <p class="empty" *ngIf="auditoria.length === 0">Sin registros cargados en pantalla.</p>
   </section>
 </main>

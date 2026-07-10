@@ -9,3 +9,9 @@ export interface HistoriaClinicaRegional {
 export interface RegistroClinico {
   [key: string]: unknown;
 }
+
+export interface AuthResponse {
+  token: string;
+  username: string;
+  role: 'ADMIN' | 'MEDICO' | 'LABORATORIO';
+}
