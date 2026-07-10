@@ -11,8 +11,8 @@ export class RepositorioClinicoService {
 
   constructor(private readonly http: HttpClient) {}
 
-  login(username: string, role: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>('/api/auth/login', { username, role });
+  login(username: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>('/api/auth/login', { username });
   }
 
   registrarUsuario(username: string, nombreCompleto: string, role: string, sede: string): Observable<AuthResponse> {

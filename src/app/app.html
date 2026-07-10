@@ -11,7 +11,7 @@
     </div>
     <h2>Acceso seguro al repositorio medico regional</h2>
     <p>
-      Ingrese con un rol clinico y seleccione la sede para consultar el Master Patient Index,
+      Ingrese con su usuario clinico y seleccione la sede para consultar el Master Patient Index,
       historia oncologica, laboratorio, imagenologia y nuevas consultas.
     </p>
     <div class="login-stats">
@@ -32,7 +32,7 @@
     <h2>{{ modoAuth === 'login' ? 'Iniciar sesion' : 'Crear usuario clinico' }}</h2>
     <label *ngIf="modoAuth === 'registro'">Nombre completo<input [(ngModel)]="nombreCompleto" placeholder="Ej. Maria Fernanda Lopez" /></label>
     <label>Usuario clinico<input [(ngModel)]="username" placeholder="medico@solca.local" /></label>
-    <label>Rol
+    <label *ngIf="modoAuth === 'registro'">Rol
       <select [(ngModel)]="role">
         <option value="MEDICO">MEDICO</option>
         <option value="LABORATORIO">LABORATORIO</option>

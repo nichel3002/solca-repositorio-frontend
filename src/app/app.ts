@@ -65,7 +65,7 @@ export class App {
     this.cargando = true;
     this.error = '';
     this.exito = '';
-    this.repositorioClinico.login(this.username, this.role).subscribe({
+    this.repositorioClinico.login(this.username).subscribe({
       next: (sesion) => {
         this.abrirSesion(sesion);
       },
