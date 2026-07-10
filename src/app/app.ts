@@ -185,8 +185,8 @@ export class App {
   }
 
   crearPaciente(): void {
-    if (!this.sesion || this.sesion.role !== 'ADMIN') {
-      this.error = 'Registrar paciente requiere rol ADMIN.';
+    if (!this.sesion || !['ADMIN', 'MEDICO'].includes(this.sesion.role)) {
+      this.error = 'Registrar paciente requiere rol MEDICO o ADMIN.';
       return;
     }
     const errorValidacion = this.validarPaciente();

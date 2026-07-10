@@ -250,8 +250,8 @@
     </section>
 
     <section *ngIf="activeView === 'consulta'">
-      <article class="module-card registration-card" *ngIf="sesion.role === 'ADMIN'">
-        <div class="module-head"><span class="material-symbols-outlined">person_add</span><div><h3>Registro de paciente maestro</h3><p>Crear paciente en el MPI regional.</p></div></div>
+      <article class="module-card registration-card" *ngIf="sesion.role === 'ADMIN' || sesion.role === 'MEDICO'">
+        <div class="module-head"><span class="material-symbols-outlined">person_add</span><div><h3>Registro de paciente maestro</h3><p>Crear paciente en el MPI regional. Disponible para ADMIN y MEDICO.</p></div></div>
         <div class="consult-form-grid">
           <label>Master ID<input [(ngModel)]="nuevoPaciente['idPacienteRegional']" /></label>
           <label>Cedula<input [(ngModel)]="nuevoPaciente['cedula']" inputmode="numeric" maxlength="10" pattern="[0-9]{10}" /></label>
