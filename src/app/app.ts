@@ -21,7 +21,7 @@ export class App {
   guardando = false;
   error = '';
   exito = '';
-  activeView: 'dashboard' | 'perfil' | 'historia' | 'repositorio' | 'consulta' | 'auditoria' = 'dashboard';
+  activeView: 'dashboard' | 'perfil' | 'historia' | 'laboratorio' | 'imagenologia' | 'consulta' | 'auditoria' = 'dashboard';
 
   pacientesDemo = ['REG-0001', 'REG-0002', 'REG-0003'];
   sedes = ['SOLCA Quito', 'SOLCA Manabi', 'SOLCA Cuenca'];
@@ -87,7 +87,7 @@ export class App {
     });
   }
 
-  consultar(): void {
+  consultar(cambiarVista = true): void {
     const id = this.idPacienteRegional.trim();
     if (!this.sesion) {
       this.error = 'Seleccione un rol e inicie sesion antes de consultar.';
@@ -114,7 +114,9 @@ export class App {
       next: (historia) => {
         this.historia = historia;
         this.cargando = false;
-        this.activeView = 'perfil';
+        if (cambiarVista) {
+          this.activeView = 'perfil';
+        }
         this.changeDetector.detectChanges();
       },
       error: () => {
@@ -248,6 +250,19 @@ export class App {
     return lista.length > 0 ? this.valor(lista[0], campoFecha) : 'Sin registros';
   }
 
+  tituloVista(): string {
+    const titulos: Record<typeof this.activeView, string> = {
+      dashboard: 'Busqueda de Pacientes',
+      perfil: 'Perfil del Paciente',
+      historia: 'Historia Clinica',
+      laboratorio: 'Laboratorio',
+      imagenologia: 'Imagenologia',
+      consulta: 'Generar Nueva Consulta',
+      auditoria: 'Auditoria'
+    };
+    return titulos[this.activeView];
+  }
+
   cerrarSesion(): void {
     this.sesion = undefined;
     this.historia = undefined;
@@ -258,7 +273,7 @@ export class App {
     this.changeDetector.detectChanges();
   }
 
-  seleccionarVista(vista: 'dashboard' | 'perfil' | 'historia' | 'repositorio' | 'consulta' | 'auditoria'): void {
+  seleccionarVista(vista: 'dashboard' | 'perfil' | 'historia' | 'laboratorio' | 'imagenologia' | 'consulta' | 'auditoria'): void {
     this.activeView = vista;
   }
 
@@ -273,7 +288,7 @@ export class App {
         this.guardando = false;
         this.changeDetector.detectChanges();
         if (this.historia) {
-          this.consultar();
+          this.consultar(false);
         }
       },
       error: () => {

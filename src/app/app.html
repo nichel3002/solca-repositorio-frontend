@@ -64,16 +64,19 @@
 
     <nav class="nav-list">
       <button type="button" [class.nav-active]="activeView === 'dashboard'" (click)="seleccionarVista('dashboard')">
-        <span class="material-symbols-outlined">dashboard</span> Dashboard / Search
+        <span class="material-symbols-outlined">dashboard</span> Dashboard / Busqueda
       </button>
-      <button type="button" [class.nav-active]="activeView === 'perfil'" (click)="seleccionarVista('perfil')" [disabled]="!historia">
-        <span class="material-symbols-outlined">badge</span> Patient Profile
+      <button type="button" [class.nav-active]="activeView === 'perfil'" (click)="seleccionarVista('perfil')">
+        <span class="material-symbols-outlined">badge</span> Perfil del Paciente
       </button>
-      <button type="button" [class.nav-active]="activeView === 'historia'" (click)="seleccionarVista('historia')" [disabled]="!historia">
-        <span class="material-symbols-outlined">history_edu</span> Clinical History
+      <button type="button" [class.nav-active]="activeView === 'historia'" (click)="seleccionarVista('historia')">
+        <span class="material-symbols-outlined">history_edu</span> Historia Clinica
       </button>
-      <button type="button" [class.nav-active]="activeView === 'repositorio'" (click)="seleccionarVista('repositorio')" [disabled]="!historia">
-        <span class="material-symbols-outlined">folder_open</span> Imaging & Labs
+      <button type="button" [class.nav-active]="activeView === 'laboratorio'" (click)="seleccionarVista('laboratorio')">
+        <span class="material-symbols-outlined">biotech</span> Laboratorio
+      </button>
+      <button type="button" [class.nav-active]="activeView === 'imagenologia'" (click)="seleccionarVista('imagenologia')">
+        <span class="material-symbols-outlined">radiology</span> Imagenologia
       </button>
       <button type="button" [class.nav-active]="activeView === 'consulta'" (click)="seleccionarVista('consulta')">
         <span class="material-symbols-outlined">medical_services</span> Nueva Consulta
@@ -96,7 +99,7 @@
     <header class="topbar">
       <div>
         <p class="eyebrow">SOLCA Quito · Manabi · Cuenca</p>
-        <h2>{{ activeView === 'dashboard' ? 'Patient Search' : activeView === 'perfil' ? 'Patient Profile' : activeView === 'historia' ? 'Clinical History' : activeView === 'repositorio' ? 'Imaging & Labs Repository' : activeView === 'consulta' ? 'Generar Nueva Consulta' : 'Auditoria' }}</h2>
+        <h2>{{ tituloVista() }}</h2>
       </div>
       <div class="facility-chip">
         <span class="material-symbols-outlined">location_on</span>
@@ -149,8 +152,18 @@
       <section class="empty-state" *ngIf="!historia && !cargando">
         <span class="material-symbols-outlined">patient_list</span>
         <h3>Seleccione un paciente para abrir la vista maestra</h3>
-        <p>Luego use el menu lateral para navegar por perfil, historia clinica, repositorio y nueva consulta.</p>
+        <p>Luego use el menu lateral para navegar por perfil, historia clinica, laboratorio, imagenologia y nueva consulta.</p>
       </section>
+    </section>
+
+    <section class="empty-state" *ngIf="activeView !== 'dashboard' && activeView !== 'consulta' && activeView !== 'auditoria' && !historia">
+      <span class="material-symbols-outlined">manage_search</span>
+      <h3>Primero consulte un paciente</h3>
+      <p>Use Dashboard / Busqueda para cargar la historia regional y luego revise perfil, historia clinica, laboratorio e imagenologia.</p>
+      <button type="button" class="primary-action" (click)="seleccionarVista('dashboard')">
+        <span class="material-symbols-outlined">search</span>
+        Ir a busqueda
+      </button>
     </section>
 
     <section class="patient-master" *ngIf="activeView === 'perfil' && historia">
@@ -192,21 +205,22 @@
       <p class="empty" *ngIf="historia.consultas.length === 0">Sin consultas registradas.</p>
     </section>
 
-    <section class="repository-grid" *ngIf="activeView === 'repositorio' && historia">
-      <article class="module-card">
+    <section class="module-card" *ngIf="activeView === 'laboratorio' && historia">
         <div class="module-head"><span class="material-symbols-outlined">science</span><div><h3>Laboratorio</h3><p>Biopsias, examenes y marcadores.</p></div></div>
         <div class="lab-row" *ngFor="let resultado of historia.laboratorio">
           <div><strong>{{ valor(resultado, 'tipoExamen') }}</strong><span>{{ valor(resultado, 'fechaResultado') }} · {{ valor(resultado, 'sede') }}</span></div>
           <p>{{ valor(resultado, 'resultado') }} {{ valor(resultado, 'unidad') }}</p>
         </div>
-      </article>
-      <article class="module-card">
+        <p class="empty" *ngIf="historia.laboratorio.length === 0">Sin resultados de laboratorio registrados.</p>
+    </section>
+
+    <section class="module-card" *ngIf="activeView === 'imagenologia' && historia">
         <div class="module-head"><span class="material-symbols-outlined">radiology</span><div><h3>Imagenologia / PACS</h3><p>Rayos X, resonancia, tomografia y PACS.</p></div></div>
         <div class="study-row" *ngFor="let imagen of historia.imagenes">
           <div class="study-icon">{{ valor(imagen, 'modalidad').charAt(0) }}</div>
           <div><strong>{{ valor(imagen, 'modalidad') }} · {{ valor(imagen, 'fechaEstudio') }}</strong><span>{{ valor(imagen, 'descripcion') }}</span><p>{{ valor(imagen, 'informeRadiologico') }}</p></div>
         </div>
-      </article>
+        <p class="empty" *ngIf="historia.imagenes.length === 0">Sin estudios de imagenologia registrados.</p>
     </section>
 
     <section *ngIf="activeView === 'consulta'">
