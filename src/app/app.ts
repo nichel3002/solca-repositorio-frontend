@@ -18,11 +18,48 @@ export class App {
   auditoria: RegistroClinico[] = [];
   cargando = false;
   cargandoAuditoria = false;
+  guardando = false;
   error = '';
+  exito = '';
   activeView: 'dashboard' | 'historia' | 'repositorio' | 'consulta' = 'dashboard';
 
   pacientesDemo = ['REG-0001', 'REG-0002', 'REG-0003'];
   sedes = ['SOLCA Quito', 'SOLCA Manabi', 'SOLCA Cuenca'];
+  nuevoPaciente: RegistroClinico = {
+    idPacienteRegional: 'REG-0004',
+    cedula: '0901020304',
+    nombres: 'Andrea Valeria',
+    apellidos: 'Mora Santos',
+    sedeOrigen: 'SOLCA Quito',
+    fechaNacimiento: '1988-08-18',
+    sexo: 'Femenino',
+    direccion: 'Av. 10 de Agosto, Quito',
+    telefono: '0964445556'
+  };
+  nuevaConsulta: RegistroClinico = {
+    sede: 'SOLCA Quito',
+    fechaConsulta: new Date().toISOString().slice(0, 10),
+    especialidad: 'Oncologia Clinica',
+    diagnostico: 'Control clinico regional',
+    medicoTratante: 'Dr. Alberto Mendez',
+    observaciones: 'Paciente valorado desde el repositorio regional.'
+  };
+  nuevoLaboratorio: RegistroClinico = {
+    sede: 'SOLCA Quito',
+    fechaResultado: new Date().toISOString().slice(0, 10),
+    tipoExamen: 'Marcador tumoral',
+    resultado: 'Normal',
+    unidad: 'U/mL',
+    rangoReferencia: '0 - 35'
+  };
+  nuevaImagen: RegistroClinico = {
+    sede: 'SOLCA Quito',
+    fechaEstudio: new Date().toISOString().slice(0, 10),
+    modalidad: 'TAC',
+    descripcion: 'Control toracoabdominal',
+    urlPacs: 'https://pacs.solca.local/demo',
+    informeRadiologico: 'Sin evidencia de progresion en el estudio de control.'
+  };
 
   constructor(
     private readonly repositorioClinico: RepositorioClinicoService,
@@ -32,6 +69,7 @@ export class App {
   ingresar(): void {
     this.cargando = true;
     this.error = '';
+    this.exito = '';
     this.repositorioClinico.login(this.username, this.role).subscribe({
       next: (sesion) => {
         this.sesion = sesion;
@@ -63,6 +101,7 @@ export class App {
 
     this.cargando = true;
     this.error = '';
+    this.exito = '';
     this.historia = undefined;
 
     const consulta = this.criterioBusqueda === 'cedula'
@@ -108,6 +147,53 @@ export class App {
         this.changeDetector.detectChanges();
       }
     });
+  }
+
+  crearPaciente(): void {
+    if (!this.sesion || this.sesion.role !== 'ADMIN') {
+      this.error = 'Registrar paciente requiere rol ADMIN.';
+      return;
+    }
+    this.guardar(
+      () => this.repositorioClinico.crearPaciente(this.nuevoPaciente, this.sesion!.token),
+      'Paciente maestro registrado.'
+    );
+  }
+
+  crearConsulta(): void {
+    if (!this.sesion || !['ADMIN', 'MEDICO'].includes(this.sesion.role)) {
+      this.error = 'Registrar consulta requiere rol MEDICO o ADMIN.';
+      return;
+    }
+    const idPacienteRegional = this.idActualPaciente();
+    this.guardar(
+      () => this.repositorioClinico.crearConsulta({ ...this.nuevaConsulta, idPacienteRegional }, this.sesion!.token),
+      'Consulta clinica guardada.'
+    );
+  }
+
+  crearLaboratorio(): void {
+    if (!this.sesion || !['ADMIN', 'LABORATORIO'].includes(this.sesion.role)) {
+      this.error = 'Registrar laboratorio requiere rol LABORATORIO o ADMIN.';
+      return;
+    }
+    const idPacienteRegional = this.idActualPaciente();
+    this.guardar(
+      () => this.repositorioClinico.crearLaboratorio({ ...this.nuevoLaboratorio, idPacienteRegional }, this.sesion!.token),
+      'Resultado de laboratorio guardado.'
+    );
+  }
+
+  crearImagen(): void {
+    if (!this.sesion || !['ADMIN', 'MEDICO'].includes(this.sesion.role)) {
+      this.error = 'Registrar imagenologia requiere rol MEDICO o ADMIN.';
+      return;
+    }
+    const idPacienteRegional = this.idActualPaciente();
+    this.guardar(
+      () => this.repositorioClinico.crearImagen({ ...this.nuevaImagen, idPacienteRegional }, this.sesion!.token),
+      'Estudio de imagenologia guardado.'
+    );
   }
 
   campos(registro: RegistroClinico): string[] {
@@ -162,5 +248,33 @@ export class App {
 
   seleccionarVista(vista: 'dashboard' | 'historia' | 'repositorio' | 'consulta'): void {
     this.activeView = vista;
+  }
+
+  private guardar(operacion: () => import('rxjs').Observable<RegistroClinico>, mensaje: string): void {
+    this.guardando = true;
+    this.error = '';
+    this.exito = '';
+    this.changeDetector.detectChanges();
+    operacion().subscribe({
+      next: () => {
+        this.exito = mensaje;
+        this.guardando = false;
+        this.changeDetector.detectChanges();
+        if (this.historia) {
+          this.consultar();
+        }
+      },
+      error: () => {
+        this.error = 'No se pudo guardar. Revise el rol de la sesion y los datos obligatorios.';
+        this.guardando = false;
+        this.changeDetector.detectChanges();
+      }
+    });
+  }
+
+  private idActualPaciente(): string {
+    return this.valor(this.historia?.paciente, 'idPacienteRegional') !== 'No registrado'
+      ? this.valor(this.historia?.paciente, 'idPacienteRegional')
+      : this.idPacienteRegional.trim();
   }
 }

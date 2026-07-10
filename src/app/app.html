@@ -72,6 +72,11 @@
       {{ error }}
     </p>
 
+    <p class="success-banner" *ngIf="exito">
+      <span class="material-symbols-outlined">check_circle</span>
+      {{ exito }}
+    </p>
+
     <section class="search-hero">
       <div class="hero-copy">
         <p class="eyebrow">Master Patient Index</p>
@@ -147,6 +152,30 @@
       <span class="material-symbols-outlined">patient_list</span>
       <h3>Seleccione un paciente para abrir la vista maestra</h3>
       <p>La informacion consolidada aparecera organizada por historia clinica, estudios, laboratorio y auditoria.</p>
+    </section>
+
+    <section class="module-card registration-card" *ngIf="sesion?.role === 'ADMIN'">
+      <div class="module-head">
+        <span class="material-symbols-outlined">person_add</span>
+        <div>
+          <h3>Avance 1 · Registro de paciente maestro</h3>
+          <p>Crea un paciente en el MPI regional para que luego pueda consolidarse.</p>
+        </div>
+      </div>
+      <div class="consult-form-grid">
+        <label>Master ID<input [(ngModel)]="nuevoPaciente['idPacienteRegional']" /></label>
+        <label>Cedula<input [(ngModel)]="nuevoPaciente['cedula']" /></label>
+        <label>Nombres<input [(ngModel)]="nuevoPaciente['nombres']" /></label>
+        <label>Apellidos<input [(ngModel)]="nuevoPaciente['apellidos']" /></label>
+        <label>Sede<select [(ngModel)]="nuevoPaciente['sedeOrigen']"><option *ngFor="let sede of sedes">{{ sede }}</option></select></label>
+        <label>Fecha nacimiento<input type="date" [(ngModel)]="nuevoPaciente['fechaNacimiento']" /></label>
+        <label>Sexo<select [(ngModel)]="nuevoPaciente['sexo']"><option>Femenino</option><option>Masculino</option></select></label>
+        <label>Telefono<input [(ngModel)]="nuevoPaciente['telefono']" /></label>
+        <label class="wide">Direccion<input [(ngModel)]="nuevoPaciente['direccion']" /></label>
+      </div>
+      <button type="button" class="secondary-action" (click)="crearPaciente()" [disabled]="guardando">
+        Registrar paciente
+      </button>
     </section>
 
     <section class="patient-master" *ngIf="historia">
@@ -258,16 +287,63 @@
         <div class="module-head">
           <span class="material-symbols-outlined">medical_services</span>
           <div>
-            <h3>Generar nueva consulta</h3>
-            <p>Flujo preparado para registrar signos, evolucion y ordenes.</p>
+            <h3>Avance 1 · Generar nueva consulta</h3>
+            <p>Guarda una consulta real en el microservicio y refresca la historia consolidada.</p>
           </div>
         </div>
         <div class="consult-form-grid">
-          <label>Presion arterial<input placeholder="120/80" /></label>
-          <label>ECOG<select><option>0 - Asintomatico</option><option>1 - Limitado</option><option>2 - Ambulatorio</option></select></label>
-          <label class="wide">Notas clinicas<textarea rows="4" placeholder="Evolucion, sintomas, respuesta a tratamiento..."></textarea></label>
+          <label>Sede<select [(ngModel)]="nuevaConsulta['sede']"><option *ngFor="let sede of sedes">{{ sede }}</option></select></label>
+          <label>Fecha<input type="date" [(ngModel)]="nuevaConsulta['fechaConsulta']" /></label>
+          <label>Especialidad<input [(ngModel)]="nuevaConsulta['especialidad']" /></label>
+          <label>Medico tratante<input [(ngModel)]="nuevaConsulta['medicoTratante']" /></label>
+          <label class="wide">Diagnostico<input [(ngModel)]="nuevaConsulta['diagnostico']" /></label>
+          <label class="wide">Observaciones<textarea rows="4" [(ngModel)]="nuevaConsulta['observaciones']"></textarea></label>
         </div>
-        <button type="button" class="secondary-action">Guardar borrador</button>
+        <button type="button" class="secondary-action" (click)="crearConsulta()" [disabled]="guardando || !historia">
+          Guardar consulta
+        </button>
+      </article>
+
+      <article class="module-card">
+        <div class="module-head">
+          <span class="material-symbols-outlined">biotech</span>
+          <div>
+            <h3>Avance 1 · Nuevo laboratorio</h3>
+            <p>Funcional para LABORATORIO o ADMIN.</p>
+          </div>
+        </div>
+        <div class="consult-form-grid">
+          <label>Sede<select [(ngModel)]="nuevoLaboratorio['sede']"><option *ngFor="let sede of sedes">{{ sede }}</option></select></label>
+          <label>Fecha<input type="date" [(ngModel)]="nuevoLaboratorio['fechaResultado']" /></label>
+          <label>Tipo examen<input [(ngModel)]="nuevoLaboratorio['tipoExamen']" /></label>
+          <label>Resultado<input [(ngModel)]="nuevoLaboratorio['resultado']" /></label>
+          <label>Unidad<input [(ngModel)]="nuevoLaboratorio['unidad']" /></label>
+          <label>Rango referencia<input [(ngModel)]="nuevoLaboratorio['rangoReferencia']" /></label>
+        </div>
+        <button type="button" class="secondary-action" (click)="crearLaboratorio()" [disabled]="guardando || !historia">
+          Guardar laboratorio
+        </button>
+      </article>
+
+      <article class="module-card">
+        <div class="module-head">
+          <span class="material-symbols-outlined">radiology</span>
+          <div>
+            <h3>Avance 1 · Nuevo estudio de imagen</h3>
+            <p>Registra un estudio PACS real para MEDICO o ADMIN.</p>
+          </div>
+        </div>
+        <div class="consult-form-grid">
+          <label>Sede<select [(ngModel)]="nuevaImagen['sede']"><option *ngFor="let sede of sedes">{{ sede }}</option></select></label>
+          <label>Fecha<input type="date" [(ngModel)]="nuevaImagen['fechaEstudio']" /></label>
+          <label>Modalidad<select [(ngModel)]="nuevaImagen['modalidad']"><option>TAC</option><option>RM</option><option>MAMOGRAFIA</option><option>RX</option></select></label>
+          <label>URL PACS<input [(ngModel)]="nuevaImagen['urlPacs']" /></label>
+          <label class="wide">Descripcion<input [(ngModel)]="nuevaImagen['descripcion']" /></label>
+          <label class="wide">Informe radiologico<textarea rows="4" [(ngModel)]="nuevaImagen['informeRadiologico']"></textarea></label>
+        </div>
+        <button type="button" class="secondary-action" (click)="crearImagen()" [disabled]="guardando || !historia">
+          Guardar imagenologia
+        </button>
       </article>
     </section>
 

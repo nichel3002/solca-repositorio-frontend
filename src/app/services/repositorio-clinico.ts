@@ -33,6 +33,30 @@ export class RepositorioClinicoService {
     });
   }
 
+  crearPaciente(paciente: RegistroClinico, token: string): Observable<RegistroClinico> {
+    return this.http.post<RegistroClinico>(`${this.apiUrl}/pacientes`, paciente, {
+      headers: this.authHeaders(token)
+    });
+  }
+
+  crearConsulta(consulta: RegistroClinico, token: string): Observable<RegistroClinico> {
+    return this.http.post<RegistroClinico>(`${this.apiUrl}/consultas`, consulta, {
+      headers: this.authHeaders(token)
+    });
+  }
+
+  crearLaboratorio(resultado: RegistroClinico, token: string): Observable<RegistroClinico> {
+    return this.http.post<RegistroClinico>(`${this.apiUrl}/laboratorio`, resultado, {
+      headers: this.authHeaders(token)
+    });
+  }
+
+  crearImagen(estudio: RegistroClinico, token: string): Observable<RegistroClinico> {
+    return this.http.post<RegistroClinico>(`${this.apiUrl}/imagenes`, estudio, {
+      headers: this.authHeaders(token)
+    });
+  }
+
   private authHeaders(token: string): HttpHeaders {
     return new HttpHeaders({ Authorization: `Bearer ${token}` });
   }

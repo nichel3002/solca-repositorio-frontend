@@ -235,15 +235,25 @@ button:disabled {
   color: #00346f;
 }
 
-.error-banner {
+.error-banner,
+.success-banner {
   align-items: center;
-  background: #ffdad6;
-  border: 1px solid #ba1a1a;
-  color: #93000a;
   display: flex;
   gap: 10px;
   margin: 0 0 20px;
   padding: 12px 16px;
+}
+
+.error-banner {
+  background: #ffdad6;
+  border: 1px solid #ba1a1a;
+  color: #93000a;
+}
+
+.success-banner {
+  background: #d8f6df;
+  border: 1px solid #2f7d45;
+  color: #18542a;
 }
 
 .search-hero {
@@ -556,6 +566,10 @@ button:disabled {
 .service-alerts,
 .audit-panel {
   margin-top: 20px;
+}
+
+.registration-card {
+  margin-bottom: 20px;
 }
 
 .service-alerts {
