@@ -1,124 +1,314 @@
-<main class="page-shell">
-  <section class="topbar">
-    <div>
-      <p class="eyebrow">SOLCA Cuenca · Manabi · Quito</p>
-      <h1>Repositorio Clinico Regional</h1>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand-block">
+      <div class="brand-mark">
+        <span class="material-symbols-outlined">local_hospital</span>
+      </div>
+      <div>
+        <h1>SOLCA Network</h1>
+        <p>Oncology Data Hub</p>
+      </div>
     </div>
-    <span class="status" [class.status-ok]="sesion">
-      {{ sesion ? ('JWT activo · ' + sesion.role) : 'Sesion requerida' }}
-    </span>
-  </section>
 
-  <section class="auth-panel">
-    <div>
-      <label for="usuario">Usuario</label>
-      <input id="usuario" name="usuario" [(ngModel)]="username" placeholder="usuario@solca.local" />
-    </div>
-    <div>
-      <label for="rol">Rol</label>
-      <select id="rol" name="rol" [(ngModel)]="role">
-        <option value="MEDICO">MEDICO</option>
-        <option value="LABORATORIO">LABORATORIO</option>
-        <option value="ADMIN">ADMIN</option>
-      </select>
-    </div>
-    <button type="button" (click)="ingresar()">Ingresar</button>
-  </section>
-
-  <section class="search-panel">
-    <div class="criteria-row">
-      <label>
-        <input type="radio" name="criterio" value="id" [(ngModel)]="criterioBusqueda" />
-        ID regional
-      </label>
-      <label>
-        <input type="radio" name="criterio" value="cedula" [(ngModel)]="criterioBusqueda" />
-        Cedula
-      </label>
-    </div>
-    <label for="paciente">{{ criterioBusqueda === 'cedula' ? 'Cedula del paciente' : 'Paciente Maestro Regional' }}</label>
-    <div class="search-row">
-      <input
-        id="paciente"
-        name="paciente"
-        [(ngModel)]="idPacienteRegional"
-        [placeholder]="criterioBusqueda === 'cedula' ? 'Ejemplo: 0102030405' : 'Ejemplo: REG-0001'"
-        (keyup.enter)="consultar()"
-      />
-      <button type="button" (click)="consultar()" [disabled]="cargando">
-        {{ cargando ? 'Consultando...' : 'Consultar' }}
+    <nav class="nav-list">
+      <button type="button" [class.nav-active]="activeView === 'dashboard'" (click)="seleccionarVista('dashboard')">
+        <span class="material-symbols-outlined">dashboard</span>
+        Dashboard
       </button>
-    </div>
-    <div class="quick-actions">
-      <button type="button" *ngFor="let paciente of pacientesDemo" (click)="seleccionarPaciente(paciente)">
-        {{ paciente }}
+      <button type="button" [class.nav-active]="activeView === 'historia'" (click)="seleccionarVista('historia')">
+        <span class="material-symbols-outlined">person_search</span>
+        Patient Search
       </button>
+      <button type="button" [class.nav-active]="activeView === 'repositorio'" (click)="seleccionarVista('repositorio')">
+        <span class="material-symbols-outlined">folder_open</span>
+        Repository
+      </button>
+      <button type="button" [class.nav-active]="activeView === 'consulta'" (click)="seleccionarVista('consulta')">
+        <span class="material-symbols-outlined">medical_services</span>
+        Nueva Consulta
+      </button>
+    </nav>
+
+    <div class="side-card">
+      <span class="material-symbols-outlined">verified_user</span>
+      <strong>JWT activo</strong>
+      <p>{{ sesion ? sesion.role + ' · ' + sesion.username : 'Sesion pendiente' }}</p>
     </div>
-  </section>
+  </aside>
 
-  <p class="error" *ngIf="error">{{ error }}</p>
-
-  <section class="result-grid" *ngIf="historia">
-    <article class="panel patient-panel">
-      <h2>Paciente</h2>
-      <dl>
-        <ng-container *ngFor="let campo of campos(historia.paciente)">
-          <dt>{{ campo }}</dt>
-          <dd>{{ historia.paciente[campo] }}</dd>
-        </ng-container>
-      </dl>
-    </article>
-
-    <article class="panel">
-      <h2>Consultas Clinicas</h2>
-      <div class="record" *ngFor="let consulta of historia.consultas">
-        <p *ngFor="let campo of campos(consulta)">
-          <strong>{{ campo }}:</strong> {{ consulta[campo] }}
-        </p>
+  <main class="main-panel">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">SOLCA Quito · Manabi · Cuenca</p>
+        <h2>Repositorio Medico Oncologico</h2>
       </div>
-      <p class="empty" *ngIf="historia.consultas.length === 0">Sin consultas registradas.</p>
-    </article>
-
-    <article class="panel">
-      <h2>Laboratorio Clinico</h2>
-      <div class="record" *ngFor="let resultado of historia.laboratorio">
-        <p *ngFor="let campo of campos(resultado)">
-          <strong>{{ campo }}:</strong> {{ resultado[campo] }}
-        </p>
+      <div class="facility-chip">
+        <span class="material-symbols-outlined">location_on</span>
+        {{ sedes[0] }}
       </div>
-      <p class="empty" *ngIf="historia.laboratorio.length === 0">Sin resultados registrados.</p>
-    </article>
+    </header>
 
-    <article class="panel">
-      <h2>Imagenologia / PACS</h2>
-      <div class="record" *ngFor="let imagen of historia.imagenes">
-        <p *ngFor="let campo of campos(imagen)">
-          <strong>{{ campo }}:</strong> {{ imagen[campo] }}
-        </p>
+    <section class="login-strip">
+      <div class="field">
+        <label for="usuario">Usuario clinico</label>
+        <input id="usuario" name="usuario" [(ngModel)]="username" placeholder="medico@solca.local" />
       </div>
-      <p class="empty" *ngIf="historia.imagenes.length === 0">Sin estudios registrados.</p>
-    </article>
-  </section>
+      <div class="field">
+        <label for="rol">Rol</label>
+        <select id="rol" name="rol" [(ngModel)]="role">
+          <option value="MEDICO">MEDICO</option>
+          <option value="LABORATORIO">LABORATORIO</option>
+          <option value="ADMIN">ADMIN</option>
+        </select>
+      </div>
+      <button type="button" class="primary-action" (click)="ingresar()" [disabled]="cargando">
+        <span class="material-symbols-outlined">login</span>
+        {{ sesion ? 'Actualizar sesion' : 'Ingresar' }}
+      </button>
+    </section>
 
-  <section class="panel integration-errors" *ngIf="historia && campos(historia.errores).length > 0">
-    <h2>Servicios no disponibles</h2>
-    <p *ngFor="let servicio of campos(historia.errores)">
-      <strong>{{ servicio }}:</strong> {{ historia.errores[servicio] }}
+    <p class="error-banner" *ngIf="error">
+      <span class="material-symbols-outlined">warning</span>
+      {{ error }}
     </p>
-  </section>
 
-  <section class="panel audit-panel" *ngIf="sesion?.role === 'ADMIN'">
-    <div class="panel-title-row">
-      <h2>Auditoria basica</h2>
-      <button type="button" (click)="cargarAuditoria()" [disabled]="cargandoAuditoria">
-        {{ cargandoAuditoria ? 'Cargando...' : 'Ver auditoria' }}
-      </button>
-    </div>
-    <div class="record" *ngFor="let registro of auditoria">
-      <p *ngFor="let campo of campos(registro)">
-        <strong>{{ campo }}:</strong> {{ registro[campo] }}
+    <section class="search-hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Master Patient Index</p>
+        <h3>Busqueda unificada de paciente oncologico</h3>
+        <p>Consulta por Master ID regional, cedula o identificador local para consolidar historia, laboratorio e imagenologia.</p>
+      </div>
+
+      <div class="search-card">
+        <div class="criteria-row">
+          <label>
+            <input type="radio" name="criterio" value="id" [(ngModel)]="criterioBusqueda" />
+            ID regional
+          </label>
+          <label>
+            <input type="radio" name="criterio" value="cedula" [(ngModel)]="criterioBusqueda" />
+            Cedula
+          </label>
+        </div>
+        <div class="search-row">
+          <span class="material-symbols-outlined">search</span>
+          <input
+            id="paciente"
+            name="paciente"
+            [(ngModel)]="idPacienteRegional"
+            [placeholder]="criterioBusqueda === 'cedula' ? 'Ejemplo: 0102030405' : 'Ejemplo: REG-0001'"
+            (keyup.enter)="consultar()"
+          />
+          <button type="button" class="primary-action" (click)="consultar()" [disabled]="cargando">
+            <span class="material-symbols-outlined">{{ cargando ? 'hourglass_top' : 'manage_search' }}</span>
+            {{ cargando ? 'Consultando' : 'Consultar' }}
+          </button>
+        </div>
+        <div class="quick-actions">
+          <button type="button" *ngFor="let paciente of pacientesDemo" (click)="seleccionarPaciente(paciente)">
+            {{ paciente }}
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="dashboard-grid">
+      <article class="metric-card">
+        <span class="material-symbols-outlined">badge</span>
+        <div>
+          <p>Paciente maestro</p>
+          <strong>{{ historia ? valor(historia.paciente, 'idPacienteRegional') : 'Sin consulta' }}</strong>
+        </div>
+      </article>
+      <article class="metric-card">
+        <span class="material-symbols-outlined">clinical_notes</span>
+        <div>
+          <p>Consultas</p>
+          <strong>{{ totalConsultas() }}</strong>
+        </div>
+      </article>
+      <article class="metric-card">
+        <span class="material-symbols-outlined">biotech</span>
+        <div>
+          <p>Laboratorio</p>
+          <strong>{{ totalLaboratorio() }}</strong>
+        </div>
+      </article>
+      <article class="metric-card">
+        <span class="material-symbols-outlined">radiology</span>
+        <div>
+          <p>Imagenologia</p>
+          <strong>{{ totalImagenes() }}</strong>
+        </div>
+      </article>
+    </section>
+
+    <section class="empty-state" *ngIf="!historia && !cargando">
+      <span class="material-symbols-outlined">patient_list</span>
+      <h3>Seleccione un paciente para abrir la vista maestra</h3>
+      <p>La informacion consolidada aparecera organizada por historia clinica, estudios, laboratorio y auditoria.</p>
+    </section>
+
+    <section class="patient-master" *ngIf="historia">
+      <article class="master-card">
+        <div class="patient-header">
+          <div class="avatar">{{ inicialesPaciente() }}</div>
+          <div>
+            <p class="eyebrow">Master Patient View</p>
+            <h3>{{ nombrePaciente() }}</h3>
+            <p class="patient-meta">
+              {{ valor(historia.paciente, 'cedula') }} · {{ valor(historia.paciente, 'sexo') }} · {{ valor(historia.paciente, 'sedeOrigen') }}
+            </p>
+          </div>
+          <span class="stage-pill">Oncology record</span>
+        </div>
+
+        <div class="identity-grid">
+          <div>
+            <span>Master ID</span>
+            <strong>{{ valor(historia.paciente, 'idPacienteRegional') }}</strong>
+          </div>
+          <div>
+            <span>Local ID Quito</span>
+            <strong>UIO-{{ valor(historia.paciente, 'idPacienteRegional') }}</strong>
+          </div>
+          <div>
+            <span>Local ID Manabi</span>
+            <strong>MAB-{{ valor(historia.paciente, 'idPacienteRegional') }}</strong>
+          </div>
+          <div>
+            <span>Local ID Cuenca</span>
+            <strong>CUE-{{ valor(historia.paciente, 'idPacienteRegional') }}</strong>
+          </div>
+        </div>
+      </article>
+
+      <article class="clinical-card">
+        <div class="section-title">
+          <span class="material-symbols-outlined">oncology</span>
+          <div>
+            <h3>Historia clinica oncologica</h3>
+            <p>{{ totalRegistros() }} registros integrados desde la red SOLCA.</p>
+          </div>
+        </div>
+        <dl class="patient-fields">
+          <ng-container *ngFor="let campo of campos(historia.paciente)">
+            <dt>{{ etiqueta(campo) }}</dt>
+            <dd>{{ historia.paciente[campo] }}</dd>
+          </ng-container>
+        </dl>
+      </article>
+    </section>
+
+    <section class="repository-grid" *ngIf="historia">
+      <article class="module-card">
+        <div class="module-head">
+          <span class="material-symbols-outlined">clinical_notes</span>
+          <div>
+            <h3>Consultas clinicas</h3>
+            <p>Ultima: {{ ultimoRegistro(historia.consultas, 'fechaConsulta') }}</p>
+          </div>
+        </div>
+        <div class="timeline-item" *ngFor="let consulta of historia.consultas">
+          <strong>{{ valor(consulta, 'especialidad') }}</strong>
+          <span>{{ valor(consulta, 'fechaConsulta') }} · {{ valor(consulta, 'sede') }}</span>
+          <p>{{ valor(consulta, 'diagnostico') }}</p>
+        </div>
+        <p class="empty" *ngIf="historia.consultas.length === 0">Sin consultas registradas.</p>
+      </article>
+
+      <article class="module-card">
+        <div class="module-head">
+          <span class="material-symbols-outlined">science</span>
+          <div>
+            <h3>Laboratorio</h3>
+            <p>Biopsias, examenes y marcadores.</p>
+          </div>
+        </div>
+        <div class="lab-row" *ngFor="let resultado of historia.laboratorio">
+          <div>
+            <strong>{{ valor(resultado, 'tipoExamen') }}</strong>
+            <span>{{ valor(resultado, 'fechaResultado') }} · {{ valor(resultado, 'sede') }}</span>
+          </div>
+          <p>{{ valor(resultado, 'resultado') }} {{ valor(resultado, 'unidad') }}</p>
+        </div>
+        <p class="empty" *ngIf="historia.laboratorio.length === 0">Sin resultados registrados.</p>
+      </article>
+
+      <article class="module-card">
+        <div class="module-head">
+          <span class="material-symbols-outlined">radiology</span>
+          <div>
+            <h3>Imagenologia</h3>
+            <p>Rayos X, resonancia, tomografia y PACS.</p>
+          </div>
+        </div>
+        <div class="study-row" *ngFor="let imagen of historia.imagenes">
+          <div class="study-icon">{{ valor(imagen, 'modalidad').charAt(0) }}</div>
+          <div>
+            <strong>{{ valor(imagen, 'modalidad') }} · {{ valor(imagen, 'fechaEstudio') }}</strong>
+            <span>{{ valor(imagen, 'descripcion') }}</span>
+            <p>{{ valor(imagen, 'informeRadiologico') }}</p>
+          </div>
+        </div>
+        <p class="empty" *ngIf="historia.imagenes.length === 0">Sin estudios registrados.</p>
+      </article>
+
+      <article class="module-card consultation-card">
+        <div class="module-head">
+          <span class="material-symbols-outlined">medical_services</span>
+          <div>
+            <h3>Generar nueva consulta</h3>
+            <p>Flujo preparado para registrar signos, evolucion y ordenes.</p>
+          </div>
+        </div>
+        <div class="consult-form-grid">
+          <label>Presion arterial<input placeholder="120/80" /></label>
+          <label>ECOG<select><option>0 - Asintomatico</option><option>1 - Limitado</option><option>2 - Ambulatorio</option></select></label>
+          <label class="wide">Notas clinicas<textarea rows="4" placeholder="Evolucion, sintomas, respuesta a tratamiento..."></textarea></label>
+        </div>
+        <button type="button" class="secondary-action">Guardar borrador</button>
+      </article>
+    </section>
+
+    <section class="service-alerts" *ngIf="historia && campos(historia.errores).length > 0">
+      <div class="section-title">
+        <span class="material-symbols-outlined">cloud_off</span>
+        <div>
+          <h3>Servicios no disponibles</h3>
+          <p>La historia se muestra con consolidacion parcial.</p>
+        </div>
+      </div>
+      <p *ngFor="let servicio of campos(historia.errores)">
+        <strong>{{ servicio }}:</strong> {{ historia.errores[servicio] }}
       </p>
-    </div>
-    <p class="empty" *ngIf="auditoria.length === 0">Sin registros cargados en pantalla.</p>
-  </section>
-</main>
+    </section>
+
+    <section class="audit-panel" *ngIf="sesion?.role === 'ADMIN'">
+      <div class="panel-title-row">
+        <div class="section-title">
+          <span class="material-symbols-outlined">admin_panel_settings</span>
+          <div>
+            <h3>Auditoria basica</h3>
+            <p>Consultas realizadas al repositorio regional.</p>
+          </div>
+        </div>
+        <button type="button" class="secondary-action" (click)="cargarAuditoria()" [disabled]="cargandoAuditoria">
+          {{ cargandoAuditoria ? 'Cargando...' : 'Ver auditoria' }}
+        </button>
+      </div>
+      <div class="audit-table" *ngIf="auditoria.length > 0">
+        <div class="audit-row audit-head">
+          <span>Usuario</span><span>Rol</span><span>Paciente</span><span>Resultado</span>
+        </div>
+        <div class="audit-row" *ngFor="let registro of auditoria">
+          <span>{{ valor(registro, 'usuario') }}</span>
+          <span>{{ valor(registro, 'rol') }}</span>
+          <span>{{ valor(registro, 'idPacienteRegional') }}</span>
+          <span>{{ valor(registro, 'resultado') }}</span>
+        </div>
+      </div>
+      <p class="empty" *ngIf="auditoria.length === 0">Sin registros cargados en pantalla.</p>
+    </section>
+  </main>
+</div>
