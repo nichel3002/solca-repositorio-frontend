@@ -10,7 +10,6 @@ import { RepositorioClinicoService } from './services/repositorio-clinico';
 })
 export class App {
   idPacienteRegional = 'REG-0001';
-  criterioBusqueda: 'id' | 'cedula' = 'id';
   modoAuth: 'login' | 'registro' = 'login';
   username = 'medico@solca.local';
   password = '';
@@ -28,7 +27,6 @@ export class App {
   exito = '';
   activeView: 'dashboard' | 'perfil' | 'historia' | 'laboratorio' | 'imagenologia' | 'consulta' | 'auditoria' = 'dashboard';
 
-  pacientesDemo = ['REG-0001', 'REG-0002', 'REG-0003'];
   sedes = ['SOLCA Quito', 'SOLCA Manabi', 'SOLCA Cuenca'];
   sedeActual = 'SOLCA Quito';
   nuevoPaciente: RegistroClinico = this.crearPacienteVacio();
@@ -106,20 +104,21 @@ export class App {
   }
 
   consultar(cambiarVista = true, limpiarMensaje = true): void {
-    const id = this.idPacienteRegional.trim();
+    const terminoBusqueda = this.idPacienteRegional.trim();
     if (!this.sesion) {
       this.error = 'Inicie sesion antes de consultar.';
       this.changeDetector.detectChanges();
       return;
     }
 
-    if (!id) {
+    if (!terminoBusqueda) {
       this.error = 'Ingrese una cedula o un identificador regional de paciente.';
       this.changeDetector.detectChanges();
       return;
     }
 
-    if (this.criterioBusqueda === 'cedula' && !this.esCedulaEcuatoriana(id)) {
+    const buscarPorCedula = /^[0-9]+$/.test(terminoBusqueda);
+    if (buscarPorCedula && !this.esCedulaEcuatoriana(terminoBusqueda)) {
       this.error = 'Ingrese una cedula ecuatoriana valida de 10 digitos.';
       this.changeDetector.detectChanges();
       return;
@@ -132,9 +131,9 @@ export class App {
     }
     this.historia = undefined;
 
-    const consulta = this.criterioBusqueda === 'cedula'
-      ? this.repositorioClinico.obtenerHistoriaPorCedula(id, this.sesion.token)
-      : this.repositorioClinico.obtenerHistoriaPorId(id, this.sesion.token);
+    const consulta = buscarPorCedula
+      ? this.repositorioClinico.obtenerHistoriaPorCedula(terminoBusqueda, this.sesion.token)
+      : this.repositorioClinico.obtenerHistoriaPorId(terminoBusqueda, this.sesion.token);
 
     consulta.subscribe({
       next: (historia) => {
@@ -151,12 +150,6 @@ export class App {
         this.changeDetector.detectChanges();
       }
     });
-  }
-
-  seleccionarPaciente(idPacienteRegional: string): void {
-    this.criterioBusqueda = 'id';
-    this.idPacienteRegional = idPacienteRegional;
-    this.consultar();
   }
 
   cargarAuditoria(): void {
@@ -223,7 +216,6 @@ export class App {
       next: () => {
         this.guardando = false;
         this.idPacienteRegional = idPacienteNuevo;
-        this.criterioBusqueda = 'id';
         this.exito = 'Paciente maestro registrado. Perfil regional cargado.';
         this.nuevoPaciente = this.crearPacienteVacio();
         this.changeDetector.detectChanges();

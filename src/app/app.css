@@ -450,33 +450,11 @@ button:disabled {
   gap: 8px;
 }
 
-.criteria-row input {
-  min-height: auto;
-  width: auto;
-}
-
 .search-row {
   align-items: center;
   display: grid;
   gap: 10px;
   grid-template-columns: auto minmax(0, 1fr) auto;
-}
-
-.quick-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.quick-actions button {
-  background: #eef2f6;
-  border: 1px solid #c2c6d3;
-  color: #00346f;
-  cursor: pointer;
-  font-weight: 800;
-  min-height: 34px;
-  padding: 0 12px;
 }
 
 .dashboard-actions {

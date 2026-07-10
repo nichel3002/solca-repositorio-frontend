@@ -130,20 +130,13 @@
           <p>Consulte por Master ID regional o cedula para consolidar historia, laboratorio e imagenologia.</p>
         </div>
         <div class="search-card">
-          <div class="criteria-row">
-            <label><input type="radio" name="criterio" value="id" [(ngModel)]="criterioBusqueda" /> Master ID</label>
-            <label><input type="radio" name="criterio" value="cedula" [(ngModel)]="criterioBusqueda" /> Cedula</label>
-          </div>
           <div class="search-row">
             <span class="material-symbols-outlined">search</span>
-            <input [(ngModel)]="idPacienteRegional" [placeholder]="criterioBusqueda === 'cedula' ? '0102030405' : 'REG-0001'" (keyup.enter)="consultar()" />
+            <input [(ngModel)]="idPacienteRegional" placeholder="Cedula o Master ID. Ej. 1710034065 / REG-0001" (keyup.enter)="consultar()" />
             <button type="button" class="primary-action" (click)="consultar()" [disabled]="cargando">
               <span class="material-symbols-outlined">{{ cargando ? 'hourglass_top' : 'manage_search' }}</span>
               {{ cargando ? 'Consultando...' : 'Consultar' }}
             </button>
-          </div>
-          <div class="quick-actions">
-            <button type="button" *ngFor="let paciente of pacientesDemo" (click)="seleccionarPaciente(paciente)">{{ paciente }}</button>
           </div>
           <div class="dashboard-actions" *ngIf="sesion.role === 'ADMIN' || sesion.role === 'MEDICO'">
             <button type="button" class="secondary-action" (click)="seleccionarVista('consulta')">
