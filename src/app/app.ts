@@ -21,10 +21,11 @@ export class App {
   guardando = false;
   error = '';
   exito = '';
-  activeView: 'dashboard' | 'historia' | 'repositorio' | 'consulta' = 'dashboard';
+  activeView: 'dashboard' | 'perfil' | 'historia' | 'repositorio' | 'consulta' | 'auditoria' = 'dashboard';
 
   pacientesDemo = ['REG-0001', 'REG-0002', 'REG-0003'];
   sedes = ['SOLCA Quito', 'SOLCA Manabi', 'SOLCA Cuenca'];
+  sedeActual = 'SOLCA Quito';
   nuevoPaciente: RegistroClinico = {
     idPacienteRegional: 'REG-0004',
     cedula: '0901020304',
@@ -74,6 +75,7 @@ export class App {
       next: (sesion) => {
         this.sesion = sesion;
         this.auditoria = [];
+        this.activeView = 'dashboard';
         this.cargando = false;
         this.changeDetector.detectChanges();
       },
@@ -112,7 +114,7 @@ export class App {
       next: (historia) => {
         this.historia = historia;
         this.cargando = false;
-        this.activeView = 'historia';
+        this.activeView = 'perfil';
         this.changeDetector.detectChanges();
       },
       error: () => {
@@ -246,7 +248,17 @@ export class App {
     return lista.length > 0 ? this.valor(lista[0], campoFecha) : 'Sin registros';
   }
 
-  seleccionarVista(vista: 'dashboard' | 'historia' | 'repositorio' | 'consulta'): void {
+  cerrarSesion(): void {
+    this.sesion = undefined;
+    this.historia = undefined;
+    this.auditoria = [];
+    this.error = '';
+    this.exito = '';
+    this.activeView = 'dashboard';
+    this.changeDetector.detectChanges();
+  }
+
+  seleccionarVista(vista: 'dashboard' | 'perfil' | 'historia' | 'repositorio' | 'consulta' | 'auditoria'): void {
     this.activeView = vista;
   }
 
