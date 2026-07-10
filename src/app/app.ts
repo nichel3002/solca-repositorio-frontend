@@ -13,6 +13,7 @@ export class App {
   criterioBusqueda: 'id' | 'cedula' = 'id';
   modoAuth: 'login' | 'registro' = 'login';
   username = 'medico@solca.local';
+  password = '';
   nombreCompleto = '';
   role: 'ADMIN' | 'MEDICO' | 'LABORATORIO' = 'MEDICO';
   sesion?: AuthResponse;
@@ -65,12 +66,12 @@ export class App {
     this.cargando = true;
     this.error = '';
     this.exito = '';
-    this.repositorioClinico.login(this.username).subscribe({
+    this.repositorioClinico.login(this.username, this.password).subscribe({
       next: (sesion) => {
         this.abrirSesion(sesion);
       },
       error: () => {
-        this.error = 'No se pudo iniciar sesion. Registre el usuario si no existe.';
+        this.error = 'No se pudo iniciar sesion. Revise usuario y contrasena.';
         this.cargando = false;
         this.changeDetector.detectChanges();
       }
@@ -78,15 +79,20 @@ export class App {
   }
 
   registrarUsuario(): void {
-    if (!this.username.trim() || !this.nombreCompleto.trim()) {
-      this.error = 'Ingrese usuario clinico y nombre completo.';
+    if (!this.username.trim() || !this.nombreCompleto.trim() || !this.password.trim()) {
+      this.error = 'Ingrese usuario clinico, nombre completo y contrasena.';
+      this.changeDetector.detectChanges();
+      return;
+    }
+    if (this.password.trim().length < 6) {
+      this.error = 'La contrasena debe tener al menos 6 caracteres.';
       this.changeDetector.detectChanges();
       return;
     }
     this.cargando = true;
     this.error = '';
     this.exito = '';
-    this.repositorioClinico.registrarUsuario(this.username, this.nombreCompleto, this.role, this.sedeActual).subscribe({
+    this.repositorioClinico.registrarUsuario(this.username, this.nombreCompleto, this.password, this.role, this.sedeActual).subscribe({
       next: (sesion) => {
         this.exito = 'Usuario clinico registrado.';
         this.abrirSesion(sesion);

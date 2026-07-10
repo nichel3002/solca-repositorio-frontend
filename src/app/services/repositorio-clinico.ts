@@ -11,12 +11,12 @@ export class RepositorioClinicoService {
 
   constructor(private readonly http: HttpClient) {}
 
-  login(username: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>('/api/auth/login', { username });
+  login(username: string, password: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>('/api/auth/login', { username, password });
   }
 
-  registrarUsuario(username: string, nombreCompleto: string, role: string, sede: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>('/api/auth/register', { username, nombreCompleto, role, sede });
+  registrarUsuario(username: string, nombreCompleto: string, password: string, role: string, sede: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>('/api/auth/register', { username, nombreCompleto, password, role, sede });
   }
 
   obtenerHistoriaPorId(idPacienteRegional: string, token: string): Observable<HistoriaClinicaRegional> {

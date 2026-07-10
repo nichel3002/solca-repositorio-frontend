@@ -32,6 +32,7 @@
     <h2>{{ modoAuth === 'login' ? 'Iniciar sesion' : 'Crear usuario clinico' }}</h2>
     <label *ngIf="modoAuth === 'registro'">Nombre completo<input [(ngModel)]="nombreCompleto" placeholder="Ej. Maria Fernanda Lopez" /></label>
     <label>Usuario clinico<input [(ngModel)]="username" placeholder="medico@solca.local" /></label>
+    <label>Contrasena<input type="password" [(ngModel)]="password" [placeholder]="modoAuth === 'login' ? 'Ingrese su contrasena' : 'Minimo 6 caracteres'" /></label>
     <label *ngIf="modoAuth === 'registro'">Rol
       <select [(ngModel)]="role">
         <option value="MEDICO">MEDICO</option>
