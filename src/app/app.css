@@ -320,6 +320,11 @@ textarea {
   width: 100%;
 }
 
+input::placeholder,
+textarea::placeholder {
+  color: #8b94a1;
+}
+
 textarea {
   padding: 10px 12px;
 }
@@ -745,6 +750,30 @@ button:disabled {
   gap: 12px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-bottom: 14px;
+}
+
+.generated-field {
+  background: #eef2f6;
+  border: 1px dashed #8b94a1;
+  color: #424751;
+  display: grid;
+  gap: 7px;
+  min-height: 44px;
+  padding: 10px 12px;
+}
+
+.generated-field span {
+  color: #5e6673;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.generated-field strong {
+  color: #00346f;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
 }
 
 .consult-form-grid .wide {

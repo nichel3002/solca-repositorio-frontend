@@ -260,15 +260,18 @@
       <article class="module-card registration-card" *ngIf="sesion.role === 'ADMIN' || sesion.role === 'MEDICO'">
         <div class="module-head"><span class="material-symbols-outlined">person_add</span><div><h3>Registro de paciente maestro</h3><p>Crear paciente en el MPI regional. Disponible para ADMIN y MEDICO.</p></div></div>
         <div class="consult-form-grid">
-          <label>Master ID<input [(ngModel)]="nuevoPaciente['idPacienteRegional']" /></label>
-          <label>Cedula<input [(ngModel)]="nuevoPaciente['cedula']" inputmode="numeric" maxlength="10" pattern="[0-9]{10}" /></label>
-          <label>Nombres<input [(ngModel)]="nuevoPaciente['nombres']" pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]+" /></label>
-          <label>Apellidos<input [(ngModel)]="nuevoPaciente['apellidos']" pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]+" /></label>
+          <div class="generated-field">
+            <span>Master ID automatico</span>
+            <strong>{{ nuevoPaciente['idPacienteRegional'] }}</strong>
+          </div>
+          <label>Cedula<input [(ngModel)]="nuevoPaciente['cedula']" inputmode="numeric" maxlength="10" pattern="[0-9]{10}" placeholder="Ej. 1710034065" /></label>
+          <label>Nombres<input [(ngModel)]="nuevoPaciente['nombres']" pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]+" placeholder="Ej. Andrea Valeria" /></label>
+          <label>Apellidos<input [(ngModel)]="nuevoPaciente['apellidos']" pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]+" placeholder="Ej. Mora Santos" /></label>
           <label>Sede<select [(ngModel)]="nuevoPaciente['sedeOrigen']"><option *ngFor="let sede of sedes">{{ sede }}</option></select></label>
           <label>Fecha nacimiento<input type="date" [(ngModel)]="nuevoPaciente['fechaNacimiento']" /></label>
-          <label>Sexo<select [(ngModel)]="nuevoPaciente['sexo']"><option>Femenino</option><option>Masculino</option></select></label>
-          <label>Telefono<input [(ngModel)]="nuevoPaciente['telefono']" inputmode="numeric" maxlength="10" pattern="[0-9]{7,10}" /></label>
-          <label class="wide">Direccion<input [(ngModel)]="nuevoPaciente['direccion']" /></label>
+          <label>Sexo<select [(ngModel)]="nuevoPaciente['sexo']"><option value="">Seleccione</option><option>Femenino</option><option>Masculino</option></select></label>
+          <label>Telefono<input [(ngModel)]="nuevoPaciente['telefono']" inputmode="numeric" maxlength="10" pattern="[0-9]{7,10}" placeholder="Ej. 0964445556" /></label>
+          <label class="wide">Direccion<input [(ngModel)]="nuevoPaciente['direccion']" placeholder="Ej. Av. 10 de Agosto, Quito" /></label>
         </div>
         <button type="button" class="secondary-action" (click)="crearPaciente()" [disabled]="guardando">Registrar paciente</button>
       </article>

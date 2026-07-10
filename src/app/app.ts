@@ -28,17 +28,7 @@ export class App {
   pacientesDemo = ['REG-0001', 'REG-0002', 'REG-0003'];
   sedes = ['SOLCA Quito', 'SOLCA Manabi', 'SOLCA Cuenca'];
   sedeActual = 'SOLCA Quito';
-  nuevoPaciente: RegistroClinico = {
-    idPacienteRegional: 'REG-0004',
-    cedula: '1710034065',
-    nombres: 'Andrea Valeria',
-    apellidos: 'Mora Santos',
-    sedeOrigen: 'SOLCA Quito',
-    fechaNacimiento: '1988-08-18',
-    sexo: 'Femenino',
-    direccion: 'Av. 10 de Agosto, Quito',
-    telefono: '0964445556'
-  };
+  nuevoPaciente: RegistroClinico = this.crearPacienteVacio();
   nuevaConsulta: RegistroClinico = {
     sede: 'SOLCA Quito',
     fechaConsulta: new Date().toISOString().slice(0, 10),
@@ -196,6 +186,9 @@ export class App {
       this.changeDetector.detectChanges();
       return;
     }
+    if (!this.requerido(this.nuevoPaciente['idPacienteRegional'])) {
+      this.nuevoPaciente['idPacienteRegional'] = this.generarMasterId();
+    }
     const idPacienteNuevo = String(this.nuevoPaciente['idPacienteRegional'] ?? '').trim();
     this.guardando = true;
     this.error = '';
@@ -207,6 +200,7 @@ export class App {
         this.idPacienteRegional = idPacienteNuevo;
         this.criterioBusqueda = 'id';
         this.exito = 'Paciente maestro registrado. Perfil regional cargado.';
+        this.nuevoPaciente = this.crearPacienteVacio();
         this.changeDetector.detectChanges();
         this.consultar(true, false);
       },
@@ -480,5 +474,23 @@ export class App {
     }, 0);
     const digitoVerificador = suma % 10 === 0 ? 0 : 10 - (suma % 10);
     return digitoVerificador === Number(cedula[9]);
+  }
+
+  private crearPacienteVacio(): RegistroClinico {
+    return {
+      idPacienteRegional: this.generarMasterId(),
+      cedula: '',
+      nombres: '',
+      apellidos: '',
+      sedeOrigen: 'SOLCA Quito',
+      fechaNacimiento: '',
+      sexo: '',
+      direccion: '',
+      telefono: ''
+    };
+  }
+
+  private generarMasterId(): string {
+    return `REG-${Date.now().toString().slice(-8)}`;
   }
 }
