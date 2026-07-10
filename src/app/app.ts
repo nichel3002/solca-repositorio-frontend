@@ -90,7 +90,7 @@ export class App {
     });
   }
 
-  consultar(cambiarVista = true): void {
+  consultar(cambiarVista = true, limpiarMensaje = true): void {
     const id = this.idPacienteRegional.trim();
     if (!this.sesion) {
       this.error = 'Seleccione un rol e inicie sesion antes de consultar.';
@@ -112,7 +112,9 @@ export class App {
 
     this.cargando = true;
     this.error = '';
-    this.exito = '';
+    if (limpiarMensaje) {
+      this.exito = '';
+    }
     this.historia = undefined;
 
     const consulta = this.criterioBusqueda === 'cedula'
@@ -194,10 +196,26 @@ export class App {
       this.changeDetector.detectChanges();
       return;
     }
-    this.guardar(
-      () => this.repositorioClinico.crearPaciente(this.nuevoPaciente, this.sesion!.token),
-      'Paciente maestro registrado.'
-    );
+    const idPacienteNuevo = String(this.nuevoPaciente['idPacienteRegional'] ?? '').trim();
+    this.guardando = true;
+    this.error = '';
+    this.exito = '';
+    this.changeDetector.detectChanges();
+    this.repositorioClinico.crearPaciente(this.nuevoPaciente, this.sesion.token).subscribe({
+      next: () => {
+        this.guardando = false;
+        this.idPacienteRegional = idPacienteNuevo;
+        this.criterioBusqueda = 'id';
+        this.exito = 'Paciente maestro registrado. Perfil regional cargado.';
+        this.changeDetector.detectChanges();
+        this.consultar(true, false);
+      },
+      error: () => {
+        this.error = 'No se pudo registrar el paciente. Revise cedula, nombres, apellidos y duplicados.';
+        this.guardando = false;
+        this.changeDetector.detectChanges();
+      }
+    });
   }
 
   crearConsulta(): void {
@@ -350,7 +368,7 @@ export class App {
         this.guardando = false;
         this.changeDetector.detectChanges();
         if (this.historia) {
-          this.consultar(false);
+          this.consultar(false, false);
         }
       },
       error: () => {
