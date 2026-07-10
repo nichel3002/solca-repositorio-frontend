@@ -7,12 +7,12 @@ import { AuthResponse, HistoriaClinicaRegional, RegistroClinico } from '../model
   providedIn: 'root'
 })
 export class RepositorioClinicoService {
-  private readonly apiUrl = 'http://localhost:8085/repositorio';
+  private readonly apiUrl = '/api/repositorio';
 
   constructor(private readonly http: HttpClient) {}
 
   login(username: string, role: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>('http://localhost:8085/auth/login', { username, role });
+    return this.http.post<AuthResponse>('/api/auth/login', { username, role });
   }
 
   obtenerHistoriaPorId(idPacienteRegional: string, token: string): Observable<HistoriaClinicaRegional> {
