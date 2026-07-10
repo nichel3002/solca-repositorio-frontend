@@ -11,7 +11,9 @@ import { RepositorioClinicoService } from './services/repositorio-clinico';
 export class App {
   idPacienteRegional = 'REG-0001';
   criterioBusqueda: 'id' | 'cedula' = 'id';
+  modoAuth: 'login' | 'registro' = 'login';
   username = 'medico@solca.local';
+  nombreCompleto = '';
   role: 'ADMIN' | 'MEDICO' | 'LABORATORIO' = 'MEDICO';
   sesion?: AuthResponse;
   historia?: HistoriaClinicaRegional;
@@ -65,15 +67,32 @@ export class App {
     this.exito = '';
     this.repositorioClinico.login(this.username, this.role).subscribe({
       next: (sesion) => {
-        this.sesion = sesion;
-        this.auditoria = [];
-        this.activeView = 'dashboard';
-        this.cargando = false;
-        this.changeDetector.detectChanges();
-        this.cargarServicios();
+        this.abrirSesion(sesion);
       },
       error: () => {
-        this.error = 'No se pudo iniciar sesion con el rol seleccionado.';
+        this.error = 'No se pudo iniciar sesion. Registre el usuario si no existe.';
+        this.cargando = false;
+        this.changeDetector.detectChanges();
+      }
+    });
+  }
+
+  registrarUsuario(): void {
+    if (!this.username.trim() || !this.nombreCompleto.trim()) {
+      this.error = 'Ingrese usuario clinico y nombre completo.';
+      this.changeDetector.detectChanges();
+      return;
+    }
+    this.cargando = true;
+    this.error = '';
+    this.exito = '';
+    this.repositorioClinico.registrarUsuario(this.username, this.nombreCompleto, this.role, this.sedeActual).subscribe({
+      next: (sesion) => {
+        this.exito = 'Usuario clinico registrado.';
+        this.abrirSesion(sesion);
+      },
+      error: () => {
+        this.error = 'No se pudo registrar. Revise si el usuario ya existe.';
         this.cargando = false;
         this.changeDetector.detectChanges();
       }
@@ -371,6 +390,17 @@ export class App {
         this.changeDetector.detectChanges();
       }
     });
+  }
+
+  private abrirSesion(sesion: AuthResponse): void {
+    this.sesion = sesion;
+    this.role = sesion.role;
+    this.username = sesion.username;
+    this.auditoria = [];
+    this.activeView = 'dashboard';
+    this.cargando = false;
+    this.changeDetector.detectChanges();
+    this.cargarServicios();
   }
 
   private idActualPaciente(): string {

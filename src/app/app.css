@@ -111,6 +111,28 @@
   font-size: 28px;
 }
 
+.auth-tabs {
+  background: #eef2f6;
+  border: 1px solid #c2c6d3;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 4px;
+}
+
+.auth-tabs button {
+  background: transparent;
+  border: 0;
+  color: #424751;
+  cursor: pointer;
+  font-weight: 800;
+  min-height: 38px;
+}
+
+.auth-tabs .auth-active {
+  background: #00346f;
+  color: #ffffff;
+}
+
 .login-card label {
   color: #424751;
   display: grid;

@@ -25,7 +25,12 @@
 
   <section class="login-card">
     <p class="eyebrow">Login & Hospital Selection</p>
-    <h2>Iniciar sesion</h2>
+    <div class="auth-tabs">
+      <button type="button" [class.auth-active]="modoAuth === 'login'" (click)="modoAuth = 'login'">Iniciar sesion</button>
+      <button type="button" [class.auth-active]="modoAuth === 'registro'" (click)="modoAuth = 'registro'">Registrarse</button>
+    </div>
+    <h2>{{ modoAuth === 'login' ? 'Iniciar sesion' : 'Crear usuario clinico' }}</h2>
+    <label *ngIf="modoAuth === 'registro'">Nombre completo<input [(ngModel)]="nombreCompleto" placeholder="Ej. Maria Fernanda Lopez" /></label>
     <label>Usuario clinico<input [(ngModel)]="username" placeholder="medico@solca.local" /></label>
     <label>Rol
       <select [(ngModel)]="role">
@@ -39,9 +44,9 @@
         <option *ngFor="let sede of sedes">{{ sede }}</option>
       </select>
     </label>
-    <button type="button" class="primary-action" (click)="ingresar()" [disabled]="cargando">
+    <button type="button" class="primary-action" (click)="modoAuth === 'login' ? ingresar() : registrarUsuario()" [disabled]="cargando">
       <span class="material-symbols-outlined">login</span>
-      {{ cargando ? 'Ingresando...' : 'Ingresar al repositorio' }}
+      {{ cargando ? 'Procesando...' : modoAuth === 'login' ? 'Ingresar al repositorio' : 'Crear usuario e ingresar' }}
     </button>
     <p class="error-banner" *ngIf="error">
       <span class="material-symbols-outlined">warning</span>

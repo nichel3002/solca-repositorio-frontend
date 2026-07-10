@@ -15,6 +15,10 @@ export class RepositorioClinicoService {
     return this.http.post<AuthResponse>('/api/auth/login', { username, role });
   }
 
+  registrarUsuario(username: string, nombreCompleto: string, role: string, sede: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>('/api/auth/register', { username, nombreCompleto, role, sede });
+  }
+
   obtenerHistoriaPorId(idPacienteRegional: string, token: string): Observable<HistoriaClinicaRegional> {
     return this.http.get<HistoriaClinicaRegional>(`${this.apiUrl}/paciente/${idPacienteRegional}`, {
       headers: this.authHeaders(token)
