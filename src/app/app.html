@@ -139,6 +139,13 @@
           <div class="quick-actions">
             <button type="button" *ngFor="let paciente of pacientesDemo" (click)="seleccionarPaciente(paciente)">{{ paciente }}</button>
           </div>
+          <div class="dashboard-actions" *ngIf="sesion.role === 'ADMIN' || sesion.role === 'MEDICO'">
+            <button type="button" class="secondary-action" (click)="seleccionarVista('consulta')">
+              <span class="material-symbols-outlined">person_add</span>
+              Registrar nuevo paciente
+            </button>
+            <span>Acceso directo al formulario de paciente maestro.</span>
+          </div>
         </div>
       </div>
 

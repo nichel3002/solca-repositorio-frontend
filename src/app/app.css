@@ -452,6 +452,21 @@ button:disabled {
   padding: 0 12px;
 }
 
+.dashboard-actions {
+  align-items: center;
+  border-top: 1px solid #e0e3e5;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+}
+
+.dashboard-actions span:not(.material-symbols-outlined) {
+  color: #5e6673;
+  font-size: 13px;
+}
+
 .dashboard-grid {
   display: grid;
   gap: 16px;
