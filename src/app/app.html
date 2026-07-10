@@ -11,7 +11,7 @@
     </div>
     <h2>Acceso seguro al repositorio medico regional</h2>
     <p>
-      Ingrese con su usuario clinico y seleccione la sede para consultar el Master Patient Index,
+      Ingrese con su usuario clinico para consultar el Master Patient Index,
       historia oncologica, laboratorio, imagenologia y nuevas consultas.
     </p>
     <div class="login-stats">
@@ -24,7 +24,7 @@
   </section>
 
   <section class="login-card">
-    <p class="eyebrow">Login & Hospital Selection</p>
+    <p class="eyebrow">Login & User Registration</p>
     <div class="auth-tabs">
       <button type="button" [class.auth-active]="modoAuth === 'login'" (click)="modoAuth = 'login'">Iniciar sesion</button>
       <button type="button" [class.auth-active]="modoAuth === 'registro'" (click)="modoAuth = 'registro'">Registrarse</button>
@@ -40,7 +40,7 @@
         <option value="ADMIN">ADMIN</option>
       </select>
     </label>
-    <label>Sede actual
+    <label *ngIf="modoAuth === 'registro'">Sede de pertenencia
       <select [(ngModel)]="sedeActual">
         <option *ngFor="let sede of sedes">{{ sede }}</option>
       </select>
@@ -286,7 +286,7 @@
         <article class="module-card">
           <div class="module-head"><span class="material-symbols-outlined">medical_services</span><div><h3>Generar nueva consulta</h3><p>Guarda una consulta real y refresca el consolidado.</p></div></div>
           <div class="consult-form-grid">
-            <label>Sede<select [(ngModel)]="nuevaConsulta['sede']"><option *ngFor="let sede of sedes">{{ sede }}</option></select></label>
+            <label>Sede asignada<input [value]="sedeActual" readonly /></label>
             <label>Fecha<input type="date" [(ngModel)]="nuevaConsulta['fechaConsulta']" /></label>
             <label>Especialidad<input [(ngModel)]="nuevaConsulta['especialidad']" pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]+" /></label>
             <label>Medico tratante<input [(ngModel)]="nuevaConsulta['medicoTratante']" pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]+" /></label>
@@ -299,7 +299,7 @@
         <article class="module-card">
           <div class="module-head"><span class="material-symbols-outlined">biotech</span><div><h3>Nuevo laboratorio</h3><p>Funcional para LABORATORIO o ADMIN.</p></div></div>
           <div class="consult-form-grid">
-            <label>Sede<select [(ngModel)]="nuevoLaboratorio['sede']"><option *ngFor="let sede of sedes">{{ sede }}</option></select></label>
+            <label>Sede asignada<input [value]="sedeActual" readonly /></label>
             <label>Fecha<input type="date" [(ngModel)]="nuevoLaboratorio['fechaResultado']" /></label>
             <label>Tipo examen<input [(ngModel)]="nuevoLaboratorio['tipoExamen']" /></label>
             <label>Resultado<input [(ngModel)]="nuevoLaboratorio['resultado']" /></label>
@@ -312,7 +312,7 @@
         <article class="module-card">
           <div class="module-head"><span class="material-symbols-outlined">radiology</span><div><h3>Nuevo estudio de imagen</h3><p>Registra un estudio PACS real.</p></div></div>
           <div class="consult-form-grid">
-            <label>Sede<select [(ngModel)]="nuevaImagen['sede']"><option *ngFor="let sede of sedes">{{ sede }}</option></select></label>
+            <label>Sede asignada<input [value]="sedeActual" readonly /></label>
             <label>Fecha<input type="date" [(ngModel)]="nuevaImagen['fechaEstudio']" /></label>
             <label>Modalidad<select [(ngModel)]="nuevaImagen['modalidad']"><option>TAC</option><option>RM</option><option>MAMOGRAFIA</option><option>RX</option></select></label>
             <label>URL PACS<input [(ngModel)]="nuevaImagen['urlPacs']" /></label>

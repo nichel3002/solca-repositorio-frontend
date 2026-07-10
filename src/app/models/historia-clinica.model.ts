@@ -14,6 +14,7 @@ export interface AuthResponse {
   token: string;
   username: string;
   role: 'ADMIN' | 'MEDICO' | 'LABORATORIO';
+  sede: string;
 }
 
 export interface ServicioDisponible {

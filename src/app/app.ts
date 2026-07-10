@@ -108,7 +108,7 @@ export class App {
   consultar(cambiarVista = true, limpiarMensaje = true): void {
     const id = this.idPacienteRegional.trim();
     if (!this.sesion) {
-      this.error = 'Seleccione un rol e inicie sesion antes de consultar.';
+      this.error = 'Inicie sesion antes de consultar.';
       this.changeDetector.detectChanges();
       return;
     }
@@ -251,7 +251,7 @@ export class App {
     }
     const idPacienteRegional = this.idActualPaciente();
     this.guardar(
-      () => this.repositorioClinico.crearConsulta({ ...this.nuevaConsulta, idPacienteRegional }, this.sesion!.token),
+      () => this.repositorioClinico.crearConsulta({ ...this.nuevaConsulta, sede: this.sedeActual, idPacienteRegional }, this.sesion!.token),
       'Consulta clinica guardada.'
     );
   }
@@ -270,7 +270,7 @@ export class App {
     }
     const idPacienteRegional = this.idActualPaciente();
     this.guardar(
-      () => this.repositorioClinico.crearLaboratorio({ ...this.nuevoLaboratorio, idPacienteRegional }, this.sesion!.token),
+      () => this.repositorioClinico.crearLaboratorio({ ...this.nuevoLaboratorio, sede: this.sedeActual, idPacienteRegional }, this.sesion!.token),
       'Resultado de laboratorio guardado.'
     );
   }
@@ -289,7 +289,7 @@ export class App {
     }
     const idPacienteRegional = this.idActualPaciente();
     this.guardar(
-      () => this.repositorioClinico.crearImagen({ ...this.nuevaImagen, idPacienteRegional }, this.sesion!.token),
+      () => this.repositorioClinico.crearImagen({ ...this.nuevaImagen, sede: this.sedeActual, idPacienteRegional }, this.sesion!.token),
       'Estudio de imagenologia guardado.'
     );
   }
@@ -402,6 +402,10 @@ export class App {
     this.sesion = sesion;
     this.role = sesion.role;
     this.username = sesion.username;
+    this.sedeActual = sesion.sede || 'SOLCA Quito';
+    this.nuevaConsulta['sede'] = this.sedeActual;
+    this.nuevoLaboratorio['sede'] = this.sedeActual;
+    this.nuevaImagen['sede'] = this.sedeActual;
     this.auditoria = [];
     this.activeView = 'dashboard';
     this.cargando = false;
