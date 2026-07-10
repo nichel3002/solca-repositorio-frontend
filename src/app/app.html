@@ -149,6 +149,32 @@
         <article class="metric-card"><span class="material-symbols-outlined">radiology</span><div><p>Imagenologia</p><strong>{{ totalImagenes() }}</strong></div></article>
       </section>
 
+      <section class="module-card services-panel">
+        <div class="panel-title-row">
+          <div class="section-title">
+            <span class="material-symbols-outlined">cloud_sync</span>
+            <div>
+              <h3>Servicios verdaderamente disponibles</h3>
+              <p>{{ serviciosDisponibles() }} de {{ servicios.length }} servicios responden desde el repositorio regional.</p>
+            </div>
+          </div>
+          <button type="button" class="secondary-action" (click)="cargarServicios()" [disabled]="cargandoServicios">
+            {{ cargandoServicios ? 'Verificando...' : 'Actualizar servicios' }}
+          </button>
+        </div>
+        <div class="services-grid" *ngIf="servicios.length > 0">
+          <article class="service-status" *ngFor="let servicio of servicios" [class.service-down]="!servicio.disponible">
+            <span class="material-symbols-outlined">{{ servicio.disponible ? 'check_circle' : 'error' }}</span>
+            <div>
+              <strong>{{ servicio.nombre }}</strong>
+              <p>{{ servicio.mensaje }}</p>
+              <small>{{ servicio.disponible ? servicio.latenciaMs + ' ms' : 'Sin respuesta' }}</small>
+            </div>
+          </article>
+        </div>
+        <p class="empty" *ngIf="servicios.length === 0">Inicie sesion o actualice para verificar los microservicios reales.</p>
+      </section>
+
       <section class="empty-state" *ngIf="!historia && !cargando">
         <span class="material-symbols-outlined">patient_list</span>
         <h3>Seleccione un paciente para abrir la vista maestra</h3>
@@ -228,13 +254,13 @@
         <div class="module-head"><span class="material-symbols-outlined">person_add</span><div><h3>Registro de paciente maestro</h3><p>Crear paciente en el MPI regional.</p></div></div>
         <div class="consult-form-grid">
           <label>Master ID<input [(ngModel)]="nuevoPaciente['idPacienteRegional']" /></label>
-          <label>Cedula<input [(ngModel)]="nuevoPaciente['cedula']" /></label>
-          <label>Nombres<input [(ngModel)]="nuevoPaciente['nombres']" /></label>
-          <label>Apellidos<input [(ngModel)]="nuevoPaciente['apellidos']" /></label>
+          <label>Cedula<input [(ngModel)]="nuevoPaciente['cedula']" inputmode="numeric" maxlength="10" pattern="[0-9]{10}" /></label>
+          <label>Nombres<input [(ngModel)]="nuevoPaciente['nombres']" pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]+" /></label>
+          <label>Apellidos<input [(ngModel)]="nuevoPaciente['apellidos']" pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]+" /></label>
           <label>Sede<select [(ngModel)]="nuevoPaciente['sedeOrigen']"><option *ngFor="let sede of sedes">{{ sede }}</option></select></label>
           <label>Fecha nacimiento<input type="date" [(ngModel)]="nuevoPaciente['fechaNacimiento']" /></label>
           <label>Sexo<select [(ngModel)]="nuevoPaciente['sexo']"><option>Femenino</option><option>Masculino</option></select></label>
-          <label>Telefono<input [(ngModel)]="nuevoPaciente['telefono']" /></label>
+          <label>Telefono<input [(ngModel)]="nuevoPaciente['telefono']" inputmode="numeric" maxlength="10" pattern="[0-9]{7,10}" /></label>
           <label class="wide">Direccion<input [(ngModel)]="nuevoPaciente['direccion']" /></label>
         </div>
         <button type="button" class="secondary-action" (click)="crearPaciente()" [disabled]="guardando">Registrar paciente</button>
@@ -246,8 +272,8 @@
           <div class="consult-form-grid">
             <label>Sede<select [(ngModel)]="nuevaConsulta['sede']"><option *ngFor="let sede of sedes">{{ sede }}</option></select></label>
             <label>Fecha<input type="date" [(ngModel)]="nuevaConsulta['fechaConsulta']" /></label>
-            <label>Especialidad<input [(ngModel)]="nuevaConsulta['especialidad']" /></label>
-            <label>Medico tratante<input [(ngModel)]="nuevaConsulta['medicoTratante']" /></label>
+            <label>Especialidad<input [(ngModel)]="nuevaConsulta['especialidad']" pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]+" /></label>
+            <label>Medico tratante<input [(ngModel)]="nuevaConsulta['medicoTratante']" pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]+" /></label>
             <label class="wide">Diagnostico<input [(ngModel)]="nuevaConsulta['diagnostico']" /></label>
             <label class="wide">Observaciones<textarea rows="4" [(ngModel)]="nuevaConsulta['observaciones']"></textarea></label>
           </div>

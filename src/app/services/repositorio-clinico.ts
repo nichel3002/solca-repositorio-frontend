@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { AuthResponse, HistoriaClinicaRegional, RegistroClinico } from '../models/historia-clinica.model';
+import { AuthResponse, HistoriaClinicaRegional, RegistroClinico, ServicioDisponible } from '../models/historia-clinica.model';
 
 @Injectable({
   providedIn: 'root'
@@ -29,6 +29,12 @@ export class RepositorioClinicoService {
 
   obtenerAuditoria(token: string): Observable<RegistroClinico[]> {
     return this.http.get<RegistroClinico[]>(`${this.apiUrl}/auditoria`, {
+      headers: this.authHeaders(token)
+    });
+  }
+
+  obtenerServicios(token: string): Observable<ServicioDisponible[]> {
+    return this.http.get<ServicioDisponible[]>(`${this.apiUrl}/servicios`, {
       headers: this.authHeaders(token)
     });
   }

@@ -15,3 +15,12 @@ export interface AuthResponse {
   username: string;
   role: 'ADMIN' | 'MEDICO' | 'LABORATORIO';
 }
+
+export interface ServicioDisponible {
+  nombre: string;
+  codigo: string;
+  endpoint: string;
+  disponible: boolean;
+  mensaje: string;
+  latenciaMs: number | null;
+}
