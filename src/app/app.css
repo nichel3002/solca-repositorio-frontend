@@ -627,12 +627,6 @@ button:disabled {
   margin: 4px 0 0;
 }
 
-.repository-grid {
-  display: grid;
-  gap: 20px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
 .services-panel {
   margin-bottom: 20px;
 }
@@ -848,7 +842,6 @@ button:disabled {
 
   .search-hero,
   .patient-master,
-  .repository-grid,
   .dashboard-grid,
   .services-grid {
     grid-template-columns: 1fr;

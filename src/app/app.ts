@@ -2,6 +2,8 @@ import { ChangeDetectorRef, Component } from '@angular/core';
 import { AuthResponse, HistoriaClinicaRegional, RegistroClinico, ServicioDisponible } from './models/historia-clinica.model';
 import { RepositorioClinicoService } from './services/repositorio-clinico';
 
+type AppView = 'dashboard' | 'paciente' | 'perfil' | 'historia' | 'laboratorio' | 'imagenologia' | 'consulta' | 'registroLaboratorio' | 'registroImagenologia' | 'auditoria';
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.html',
@@ -25,7 +27,7 @@ export class App {
   guardando = false;
   error = '';
   exito = '';
-  activeView: 'dashboard' | 'perfil' | 'historia' | 'laboratorio' | 'imagenologia' | 'consulta' | 'auditoria' = 'dashboard';
+  activeView: AppView = 'dashboard';
 
   sedes = ['SOLCA Quito', 'SOLCA Manabi', 'SOLCA Cuenca'];
   sedeActual = 'SOLCA Quito';
@@ -341,13 +343,16 @@ export class App {
   }
 
   tituloVista(): string {
-    const titulos: Record<typeof this.activeView, string> = {
+    const titulos: Record<AppView, string> = {
       dashboard: 'Busqueda de Pacientes',
+      paciente: 'Registrar Paciente',
       perfil: 'Perfil del Paciente',
       historia: 'Historia Clinica',
       laboratorio: 'Laboratorio',
       imagenologia: 'Imagenologia',
       consulta: 'Generar Nueva Consulta',
+      registroLaboratorio: 'Registrar Laboratorio',
+      registroImagenologia: 'Registrar Imagenologia',
       auditoria: 'Auditoria'
     };
     return titulos[this.activeView];
@@ -364,7 +369,7 @@ export class App {
     this.changeDetector.detectChanges();
   }
 
-  seleccionarVista(vista: 'dashboard' | 'perfil' | 'historia' | 'laboratorio' | 'imagenologia' | 'consulta' | 'auditoria'): void {
+  seleccionarVista(vista: AppView): void {
     this.activeView = vista;
   }
 

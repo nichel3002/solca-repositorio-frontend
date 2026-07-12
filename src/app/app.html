@@ -72,6 +72,9 @@
       <button type="button" [class.nav-active]="activeView === 'dashboard'" (click)="seleccionarVista('dashboard')">
         <span class="material-symbols-outlined">dashboard</span> Dashboard / Busqueda
       </button>
+      <button type="button" [class.nav-active]="activeView === 'paciente'" (click)="seleccionarVista('paciente')" *ngIf="sesion.role === 'ADMIN' || sesion.role === 'MEDICO'">
+        <span class="material-symbols-outlined">person_add</span> Registrar Paciente
+      </button>
       <button type="button" [class.nav-active]="activeView === 'perfil'" (click)="seleccionarVista('perfil')">
         <span class="material-symbols-outlined">badge</span> Perfil del Paciente
       </button>
@@ -86,6 +89,12 @@
       </button>
       <button type="button" [class.nav-active]="activeView === 'consulta'" (click)="seleccionarVista('consulta')">
         <span class="material-symbols-outlined">medical_services</span> Nueva Consulta
+      </button>
+      <button type="button" [class.nav-active]="activeView === 'registroLaboratorio'" (click)="seleccionarVista('registroLaboratorio')" *ngIf="sesion.role === 'ADMIN' || sesion.role === 'LABORATORIO'">
+        <span class="material-symbols-outlined">science</span> Registrar Laboratorio
+      </button>
+      <button type="button" [class.nav-active]="activeView === 'registroImagenologia'" (click)="seleccionarVista('registroImagenologia')" *ngIf="sesion.role === 'ADMIN' || sesion.role === 'MEDICO'">
+        <span class="material-symbols-outlined">add_photo_alternate</span> Registrar Imagenologia
       </button>
       <button type="button" [class.nav-active]="activeView === 'auditoria'" (click)="seleccionarVista('auditoria')" *ngIf="sesion.role === 'ADMIN'">
         <span class="material-symbols-outlined">admin_panel_settings</span> Auditoria
@@ -139,7 +148,7 @@
             </button>
           </div>
           <div class="dashboard-actions" *ngIf="sesion.role === 'ADMIN' || sesion.role === 'MEDICO'">
-            <button type="button" class="secondary-action" (click)="seleccionarVista('consulta')">
+            <button type="button" class="secondary-action" (click)="seleccionarVista('paciente')">
               <span class="material-symbols-outlined">person_add</span>
               Registrar nuevo paciente
             </button>
@@ -188,7 +197,7 @@
       </section>
     </section>
 
-    <section class="empty-state" *ngIf="activeView !== 'dashboard' && activeView !== 'consulta' && activeView !== 'auditoria' && !historia">
+    <section class="empty-state" *ngIf="activeView !== 'dashboard' && activeView !== 'paciente' && activeView !== 'auditoria' && !historia">
       <span class="material-symbols-outlined">manage_search</span>
       <h3>Primero consulte un paciente</h3>
       <p>Use Dashboard / Busqueda para cargar la historia regional y luego revise perfil, historia clinica, laboratorio e imagenologia.</p>
@@ -255,7 +264,7 @@
         <p class="empty" *ngIf="historia.imagenes.length === 0">Sin estudios de imagenologia registrados.</p>
     </section>
 
-    <section *ngIf="activeView === 'consulta'">
+    <section *ngIf="activeView === 'paciente'">
       <article class="module-card registration-card" *ngIf="sesion.role === 'ADMIN' || sesion.role === 'MEDICO'">
         <div class="module-head"><span class="material-symbols-outlined">person_add</span><div><h3>Registro de paciente maestro</h3><p>Crear paciente en el MPI regional. Disponible para ADMIN y MEDICO.</p></div></div>
         <div class="consult-form-grid">
@@ -274,47 +283,45 @@
         </div>
         <button type="button" class="secondary-action" (click)="crearPaciente()" [disabled]="guardando">Registrar paciente</button>
       </article>
+    </section>
 
-      <section class="repository-grid">
-        <article class="module-card">
-          <div class="module-head"><span class="material-symbols-outlined">medical_services</span><div><h3>Generar nueva consulta</h3><p>Guarda una consulta real y refresca el consolidado.</p></div></div>
-          <div class="consult-form-grid">
-            <label>Sede asignada<input [value]="sedeActual" readonly /></label>
-            <label>Fecha<input type="date" [(ngModel)]="nuevaConsulta['fechaConsulta']" /></label>
-            <label>Especialidad<input [(ngModel)]="nuevaConsulta['especialidad']" pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]+" /></label>
-            <label>Medico tratante<input [(ngModel)]="nuevaConsulta['medicoTratante']" pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]+" /></label>
-            <label class="wide">Diagnostico<input [(ngModel)]="nuevaConsulta['diagnostico']" /></label>
-            <label class="wide">Observaciones<textarea rows="4" [(ngModel)]="nuevaConsulta['observaciones']"></textarea></label>
-          </div>
-          <button type="button" class="secondary-action" (click)="crearConsulta()" [disabled]="guardando || !historia">Guardar consulta</button>
-        </article>
+    <section class="module-card" *ngIf="activeView === 'consulta' && historia">
+      <div class="module-head"><span class="material-symbols-outlined">medical_services</span><div><h3>Generar nueva consulta</h3><p>Guarda una consulta real y refresca el consolidado.</p></div></div>
+      <div class="consult-form-grid">
+        <label>Sede asignada<input [value]="sedeActual" readonly /></label>
+        <label>Fecha<input type="date" [(ngModel)]="nuevaConsulta['fechaConsulta']" /></label>
+        <label>Especialidad<input [(ngModel)]="nuevaConsulta['especialidad']" pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]+" /></label>
+        <label>Medico tratante<input [(ngModel)]="nuevaConsulta['medicoTratante']" pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]+" /></label>
+        <label class="wide">Diagnostico<input [(ngModel)]="nuevaConsulta['diagnostico']" /></label>
+        <label class="wide">Observaciones<textarea rows="4" [(ngModel)]="nuevaConsulta['observaciones']"></textarea></label>
+      </div>
+      <button type="button" class="secondary-action" (click)="crearConsulta()" [disabled]="guardando || !historia">Guardar consulta</button>
+    </section>
 
-        <article class="module-card">
-          <div class="module-head"><span class="material-symbols-outlined">biotech</span><div><h3>Nuevo laboratorio</h3><p>Funcional para LABORATORIO o ADMIN.</p></div></div>
-          <div class="consult-form-grid">
-            <label>Sede asignada<input [value]="sedeActual" readonly /></label>
-            <label>Fecha<input type="date" [(ngModel)]="nuevoLaboratorio['fechaResultado']" /></label>
-            <label>Tipo examen<input [(ngModel)]="nuevoLaboratorio['tipoExamen']" /></label>
-            <label>Resultado<input [(ngModel)]="nuevoLaboratorio['resultado']" /></label>
-            <label>Unidad<input [(ngModel)]="nuevoLaboratorio['unidad']" /></label>
-            <label>Rango referencia<input [(ngModel)]="nuevoLaboratorio['rangoReferencia']" /></label>
-          </div>
-          <button type="button" class="secondary-action" (click)="crearLaboratorio()" [disabled]="guardando || !historia">Guardar laboratorio</button>
-        </article>
+    <section class="module-card" *ngIf="activeView === 'registroLaboratorio' && historia">
+      <div class="module-head"><span class="material-symbols-outlined">biotech</span><div><h3>Nuevo laboratorio</h3><p>Funcional para LABORATORIO o ADMIN.</p></div></div>
+      <div class="consult-form-grid">
+        <label>Sede asignada<input [value]="sedeActual" readonly /></label>
+        <label>Fecha<input type="date" [(ngModel)]="nuevoLaboratorio['fechaResultado']" /></label>
+        <label>Tipo examen<input [(ngModel)]="nuevoLaboratorio['tipoExamen']" /></label>
+        <label>Resultado<input [(ngModel)]="nuevoLaboratorio['resultado']" /></label>
+        <label>Unidad<input [(ngModel)]="nuevoLaboratorio['unidad']" /></label>
+        <label>Rango referencia<input [(ngModel)]="nuevoLaboratorio['rangoReferencia']" /></label>
+      </div>
+      <button type="button" class="secondary-action" (click)="crearLaboratorio()" [disabled]="guardando || !historia">Guardar laboratorio</button>
+    </section>
 
-        <article class="module-card">
-          <div class="module-head"><span class="material-symbols-outlined">radiology</span><div><h3>Nuevo estudio de imagen</h3><p>Registra un estudio PACS real.</p></div></div>
-          <div class="consult-form-grid">
-            <label>Sede asignada<input [value]="sedeActual" readonly /></label>
-            <label>Fecha<input type="date" [(ngModel)]="nuevaImagen['fechaEstudio']" /></label>
-            <label>Modalidad<select [(ngModel)]="nuevaImagen['modalidad']"><option>TAC</option><option>RM</option><option>MAMOGRAFIA</option><option>RX</option></select></label>
-            <label>URL PACS<input [(ngModel)]="nuevaImagen['urlPacs']" /></label>
-            <label class="wide">Descripcion<input [(ngModel)]="nuevaImagen['descripcion']" /></label>
-            <label class="wide">Informe radiologico<textarea rows="4" [(ngModel)]="nuevaImagen['informeRadiologico']"></textarea></label>
-          </div>
-          <button type="button" class="secondary-action" (click)="crearImagen()" [disabled]="guardando || !historia">Guardar imagenologia</button>
-        </article>
-      </section>
+    <section class="module-card" *ngIf="activeView === 'registroImagenologia' && historia">
+      <div class="module-head"><span class="material-symbols-outlined">radiology</span><div><h3>Nuevo estudio de imagen</h3><p>Registra un estudio PACS real.</p></div></div>
+      <div class="consult-form-grid">
+        <label>Sede asignada<input [value]="sedeActual" readonly /></label>
+        <label>Fecha<input type="date" [(ngModel)]="nuevaImagen['fechaEstudio']" /></label>
+        <label>Modalidad<select [(ngModel)]="nuevaImagen['modalidad']"><option>TAC</option><option>RM</option><option>MAMOGRAFIA</option><option>RX</option></select></label>
+        <label>URL PACS<input [(ngModel)]="nuevaImagen['urlPacs']" /></label>
+        <label class="wide">Descripcion<input [(ngModel)]="nuevaImagen['descripcion']" /></label>
+        <label class="wide">Informe radiologico<textarea rows="4" [(ngModel)]="nuevaImagen['informeRadiologico']"></textarea></label>
+      </div>
+      <button type="button" class="secondary-action" (click)="crearImagen()" [disabled]="guardando || !historia">Guardar imagenologia</button>
     </section>
 
     <section class="audit-panel" *ngIf="activeView === 'auditoria' && sesion.role === 'ADMIN'">
