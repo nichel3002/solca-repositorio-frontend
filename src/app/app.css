@@ -203,6 +203,14 @@
   flex-direction: column;
 }
 
+.nav-group {
+  color: #707782;
+  font-size: 11px;
+  font-weight: 900;
+  margin: 12px 20px 6px;
+  text-transform: uppercase;
+}
+
 .nav-list button {
   align-items: center;
   background: transparent;
@@ -772,6 +780,27 @@ button:disabled {
 
 .consult-form-grid .wide {
   grid-column: 1 / -1;
+}
+
+.dicom-drop {
+  background: #f7f9fc;
+  border: 1px dashed #8ca7d8;
+  padding: 14px;
+}
+
+.dicom-drop input {
+  background: #ffffff;
+  border: 1px solid #c2c6d3;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.dicom-drop span {
+  color: #00346f;
+  font-size: 13px;
+  font-weight: 800;
+  margin-top: 4px;
+  overflow-wrap: anywhere;
 }
 
 .service-alerts,

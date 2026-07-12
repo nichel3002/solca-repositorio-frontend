@@ -69,12 +69,14 @@
     </div>
 
     <nav class="nav-list">
+      <span class="nav-group">Busqueda</span>
       <button type="button" [class.nav-active]="activeView === 'dashboard'" (click)="seleccionarVista('dashboard')">
         <span class="material-symbols-outlined">dashboard</span> Dashboard / Busqueda
       </button>
       <button type="button" [class.nav-active]="activeView === 'paciente'" (click)="seleccionarVista('paciente')" *ngIf="sesion.role === 'ADMIN' || sesion.role === 'MEDICO'">
         <span class="material-symbols-outlined">person_add</span> Registrar Paciente
       </button>
+      <span class="nav-group">Historia del paciente</span>
       <button type="button" [class.nav-active]="activeView === 'perfil'" (click)="seleccionarVista('perfil')">
         <span class="material-symbols-outlined">badge</span> Perfil del Paciente
       </button>
@@ -87,6 +89,7 @@
       <button type="button" [class.nav-active]="activeView === 'imagenologia'" (click)="seleccionarVista('imagenologia')">
         <span class="material-symbols-outlined">radiology</span> Imagenologia
       </button>
+      <span class="nav-group">Registro clinico</span>
       <button type="button" [class.nav-active]="activeView === 'consulta'" (click)="seleccionarVista('consulta')">
         <span class="material-symbols-outlined">medical_services</span> Nueva Consulta
       </button>
@@ -94,8 +97,9 @@
         <span class="material-symbols-outlined">science</span> Registrar Laboratorio
       </button>
       <button type="button" [class.nav-active]="activeView === 'registroImagenologia'" (click)="seleccionarVista('registroImagenologia')" *ngIf="sesion.role === 'ADMIN' || sesion.role === 'MEDICO'">
-        <span class="material-symbols-outlined">add_photo_alternate</span> Registrar Imagenologia
+        <span class="material-symbols-outlined">upload_file</span> Enviar DICOM
       </button>
+      <span class="nav-group" *ngIf="sesion.role === 'ADMIN'">Administracion</span>
       <button type="button" [class.nav-active]="activeView === 'auditoria'" (click)="seleccionarVista('auditoria')" *ngIf="sesion.role === 'ADMIN'">
         <span class="material-symbols-outlined">admin_panel_settings</span> Auditoria
       </button>
@@ -312,16 +316,18 @@
     </section>
 
     <section class="module-card" *ngIf="activeView === 'registroImagenologia' && historia">
-      <div class="module-head"><span class="material-symbols-outlined">radiology</span><div><h3>Nuevo estudio de imagen</h3><p>Registra un estudio PACS real.</p></div></div>
+      <div class="module-head"><span class="material-symbols-outlined">upload_file</span><div><h3>Envio DICOM a imagenologia</h3><p>Solo se aceptan archivos .dcm o .dicom y se envian como DICOM C-STORE.</p></div></div>
       <div class="consult-form-grid">
         <label>Sede asignada<input [value]="sedeActual" readonly /></label>
         <label>Fecha<input type="date" [(ngModel)]="nuevaImagen['fechaEstudio']" /></label>
         <label>Modalidad<select [(ngModel)]="nuevaImagen['modalidad']"><option>TAC</option><option>RM</option><option>MAMOGRAFIA</option><option>RX</option></select></label>
-        <label>URL PACS<input [(ngModel)]="nuevaImagen['urlPacs']" /></label>
         <label class="wide">Descripcion<input [(ngModel)]="nuevaImagen['descripcion']" /></label>
-        <label class="wide">Informe radiologico<textarea rows="4" [(ngModel)]="nuevaImagen['informeRadiologico']"></textarea></label>
+        <label class="wide dicom-drop">Archivo DICOM
+          <input type="file" accept=".dcm,.dicom,application/dicom" (change)="seleccionarDicom($event)" />
+          <span>{{ archivoDicom ? archivoDicom.name : 'Seleccione un archivo .dcm o .dicom' }}</span>
+        </label>
       </div>
-      <button type="button" class="secondary-action" (click)="crearImagen()" [disabled]="guardando || !historia">Guardar imagenologia</button>
+      <button type="button" class="secondary-action" (click)="crearImagen()" [disabled]="guardando || !historia || !archivoDicom">Enviar DICOM</button>
     </section>
 
     <section class="audit-panel" *ngIf="activeView === 'auditoria' && sesion.role === 'ADMIN'">

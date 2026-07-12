@@ -67,6 +67,26 @@ export class RepositorioClinicoService {
     });
   }
 
+  enviarDicomImagenologia(datos: {
+    idPacienteRegional: string;
+    sede: string;
+    fechaEstudio: string;
+    modalidad: string;
+    descripcion: string;
+    archivo: File;
+  }, token: string): Observable<RegistroClinico> {
+    const formData = new FormData();
+    formData.append('idPacienteRegional', datos.idPacienteRegional);
+    formData.append('sede', datos.sede);
+    formData.append('fechaEstudio', datos.fechaEstudio);
+    formData.append('modalidad', datos.modalidad);
+    formData.append('descripcion', datos.descripcion);
+    formData.append('archivo', datos.archivo);
+    return this.http.post<RegistroClinico>(`${this.apiUrl}/imagenes/dicom`, formData, {
+      headers: this.authHeaders(token)
+    });
+  }
+
   private authHeaders(token: string): HttpHeaders {
     return new HttpHeaders({ Authorization: `Bearer ${token}` });
   }

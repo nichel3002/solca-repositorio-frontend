@@ -52,10 +52,9 @@ export class App {
     sede: 'SOLCA Quito',
     fechaEstudio: new Date().toISOString().slice(0, 10),
     modalidad: 'TAC',
-    descripcion: 'Control toracoabdominal',
-    urlPacs: 'https://pacs.solca.local/demo',
-    informeRadiologico: 'Sin evidencia de progresion en el estudio de control.'
+    descripcion: 'Control toracoabdominal'
   };
+  archivoDicom?: File;
 
   constructor(
     private readonly repositorioClinico: RepositorioClinicoService,
@@ -282,10 +281,51 @@ export class App {
       return;
     }
     const idPacienteRegional = this.idActualPaciente();
-    this.guardar(
-      () => this.repositorioClinico.crearImagen({ ...this.nuevaImagen, sede: this.sedeActual, idPacienteRegional }, this.sesion!.token),
-      'Estudio de imagenologia guardado.'
-    );
+    this.guardando = true;
+    this.error = '';
+    this.exito = '';
+    this.changeDetector.detectChanges();
+    this.repositorioClinico.enviarDicomImagenologia({
+        idPacienteRegional,
+        sede: this.sedeActual,
+        fechaEstudio: String(this.nuevaImagen['fechaEstudio'] ?? ''),
+        modalidad: String(this.nuevaImagen['modalidad'] ?? ''),
+        descripcion: String(this.nuevaImagen['descripcion'] ?? ''),
+        archivo: this.archivoDicom!
+      }, this.sesion.token).subscribe({
+      next: () => {
+        this.exito = 'DICOM enviado a imagenologia por protocolo DICOM C-STORE.';
+        this.guardando = false;
+        this.archivoDicom = undefined;
+        this.changeDetector.detectChanges();
+        this.consultar(false, false);
+      },
+      error: () => {
+        this.error = 'No se pudo enviar el DICOM. Verifique que sea .dcm/.dicom valido.';
+        this.guardando = false;
+        this.changeDetector.detectChanges();
+      }
+    });
+  }
+
+  seleccionarDicom(evento: Event): void {
+    const input = evento.target as HTMLInputElement;
+    const archivo = input.files?.[0];
+    this.archivoDicom = archivo;
+    if (!archivo) {
+      return;
+    }
+    const nombre = archivo.name.toLowerCase();
+    if (!nombre.endsWith('.dcm') && !nombre.endsWith('.dicom')) {
+      this.archivoDicom = undefined;
+      input.value = '';
+      this.error = 'Solo se permite seleccionar archivos DICOM (.dcm o .dicom).';
+      this.exito = '';
+      this.changeDetector.detectChanges();
+      return;
+    }
+    this.error = '';
+    this.changeDetector.detectChanges();
   }
 
   campos(registro: RegistroClinico): string[] {
@@ -352,7 +392,7 @@ export class App {
       imagenologia: 'Imagenologia',
       consulta: 'Generar Nueva Consulta',
       registroLaboratorio: 'Registrar Laboratorio',
-      registroImagenologia: 'Registrar Imagenologia',
+      registroImagenologia: 'Enviar DICOM',
       auditoria: 'Auditoria'
     };
     return titulos[this.activeView];
@@ -477,8 +517,12 @@ export class App {
     if (!this.requerido(this.nuevaImagen['descripcion'])) {
       return 'La descripcion del estudio es obligatoria.';
     }
-    if (!this.requerido(this.nuevaImagen['informeRadiologico'])) {
-      return 'El informe radiologico es obligatorio.';
+    if (!this.archivoDicom) {
+      return 'Adjunte un archivo DICOM (.dcm o .dicom).';
+    }
+    const nombre = this.archivoDicom.name.toLowerCase();
+    if (!nombre.endsWith('.dcm') && !nombre.endsWith('.dicom')) {
+      return 'Solo se permite subir archivos DICOM (.dcm o .dicom).';
     }
     return '';
   }
