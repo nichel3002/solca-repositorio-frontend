@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
+import * as dicomParser from 'dicom-parser';
 import { AuthResponse, HistoriaClinicaRegional, RegistroClinico, ServicioDisponible } from './models/historia-clinica.model';
 import { RepositorioClinicoService } from './services/repositorio-clinico';
 
@@ -11,6 +12,8 @@ type AppView = 'dashboard' | 'paciente' | 'perfil' | 'historia' | 'laboratorio' 
   styleUrl: './app.css'
 })
 export class App {
+  @ViewChild('dicomCanvas') dicomCanvas?: ElementRef<HTMLCanvasElement>;
+
   idPacienteRegional = 'REG-0001';
   modoAuth: 'login' | 'registro' = 'login';
   username = 'medico@solca.local';
@@ -21,6 +24,9 @@ export class App {
   historia?: HistoriaClinicaRegional;
   auditoria: RegistroClinico[] = [];
   servicios: ServicioDisponible[] = [];
+  estudioSeleccionado?: RegistroClinico;
+  dicomMetadata: RegistroClinico = {};
+  cargandoDicom = false;
   cargando = false;
   cargandoAuditoria = false;
   cargandoServicios = false;
@@ -328,6 +334,50 @@ export class App {
     this.changeDetector.detectChanges();
   }
 
+  verDicom(estudio: RegistroClinico): void {
+    if (!this.sesion) {
+      return;
+    }
+    const id = this.valor(estudio, 'id');
+    if (id === 'No registrado') {
+      this.error = 'El estudio no tiene identificador para abrir el DICOM.';
+      return;
+    }
+    this.estudioSeleccionado = estudio;
+    this.dicomMetadata = {};
+    this.cargandoDicom = true;
+    this.error = '';
+    this.changeDetector.detectChanges();
+    this.repositorioClinico.descargarDicom(id, this.sesion.token).subscribe({
+      next: (archivo) => {
+        try {
+          this.renderizarDicom(archivo);
+          this.cargandoDicom = false;
+          this.changeDetector.detectChanges();
+        } catch {
+          this.error = 'No se pudo visualizar este DICOM. Verifique que sea una imagen monocromatica sin compresion.';
+          this.cargandoDicom = false;
+          this.changeDetector.detectChanges();
+        }
+      },
+      error: () => {
+        this.error = 'Este estudio no tiene DICOM disponible para visualizar.';
+        this.cargandoDicom = false;
+        this.changeDetector.detectChanges();
+      }
+    });
+  }
+
+  cerrarVisorDicom(): void {
+    this.estudioSeleccionado = undefined;
+    this.dicomMetadata = {};
+    const canvas = this.dicomCanvas?.nativeElement;
+    const contexto = canvas?.getContext('2d');
+    if (canvas && contexto) {
+      contexto.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  }
+
   campos(registro: RegistroClinico): string[] {
     return Object.keys(registro);
   }
@@ -525,6 +575,69 @@ export class App {
       return 'Solo se permite subir archivos DICOM (.dcm o .dicom).';
     }
     return '';
+  }
+
+  private renderizarDicom(archivo: ArrayBuffer): void {
+    const bytes = new Uint8Array(archivo);
+    const dataSet = dicomParser.parseDicom(bytes);
+    const rows = dataSet.uint16('x00280010') ?? 0;
+    const columns = dataSet.uint16('x00280011') ?? 0;
+    const bitsAllocated = dataSet.uint16('x00280100') ?? 16;
+    const pixelRepresentation = dataSet.uint16('x00280103') ?? 0;
+    const intercept = Number(dataSet.string('x00281052') ?? 0);
+    const slope = Number(dataSet.string('x00281053') ?? 1);
+    const pixelData = dataSet.elements['x7fe00010'];
+    if (!rows || !columns || !pixelData) {
+      throw new Error('DICOM sin datos de imagen.');
+    }
+
+    const cantidad = rows * columns;
+    const valores = new Float32Array(cantidad);
+    let minimo = Number.POSITIVE_INFINITY;
+    let maximo = Number.NEGATIVE_INFINITY;
+    const inicio = pixelData.dataOffset;
+    for (let indice = 0; indice < cantidad; indice += 1) {
+      let valor: number;
+      if (bitsAllocated === 8) {
+        valor = bytes[inicio + indice];
+      } else {
+        const offset = inicio + indice * 2;
+        valor = pixelRepresentation === 1
+          ? new DataView(bytes.buffer).getInt16(offset, true)
+          : new DataView(bytes.buffer).getUint16(offset, true);
+      }
+      valor = valor * slope + intercept;
+      valores[indice] = valor;
+      minimo = Math.min(minimo, valor);
+      maximo = Math.max(maximo, valor);
+    }
+
+    const canvas = this.dicomCanvas?.nativeElement;
+    const contexto = canvas?.getContext('2d');
+    if (!canvas || !contexto) {
+      throw new Error('Canvas no disponible.');
+    }
+    canvas.width = columns;
+    canvas.height = rows;
+    const imagen = contexto.createImageData(columns, rows);
+    const rango = maximo - minimo || 1;
+    for (let indice = 0; indice < cantidad; indice += 1) {
+      const gris = Math.max(0, Math.min(255, Math.round(((valores[indice] - minimo) / rango) * 255)));
+      const base = indice * 4;
+      imagen.data[base] = gris;
+      imagen.data[base + 1] = gris;
+      imagen.data[base + 2] = gris;
+      imagen.data[base + 3] = 255;
+    }
+    contexto.putImageData(imagen, 0, 0);
+    this.dicomMetadata = {
+      paciente: dataSet.string('x00100010') ?? 'Anonimizado',
+      estudio: dataSet.string('x00081030') ?? this.valor(this.estudioSeleccionado, 'descripcion'),
+      modalidad: dataSet.string('x00080060') ?? this.valor(this.estudioSeleccionado, 'modalidad'),
+      filas: rows,
+      columnas: columns,
+      bits: bitsAllocated
+    };
   }
 
   private requerido(valor: unknown): boolean {

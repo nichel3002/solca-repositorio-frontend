@@ -263,9 +263,36 @@
         <div class="module-head"><span class="material-symbols-outlined">radiology</span><div><h3>Imagenologia / PACS</h3><p>Rayos X, resonancia, tomografia y PACS.</p></div></div>
         <div class="study-row" *ngFor="let imagen of historia.imagenes">
           <div class="study-icon">{{ valor(imagen, 'modalidad').charAt(0) }}</div>
-          <div><strong>{{ valor(imagen, 'modalidad') }} · {{ valor(imagen, 'fechaEstudio') }}</strong><span>{{ valor(imagen, 'descripcion') }}</span><p>{{ valor(imagen, 'informeRadiologico') }}</p></div>
+          <div>
+            <strong>{{ valor(imagen, 'modalidad') }} · {{ valor(imagen, 'fechaEstudio') }}</strong>
+            <span>{{ valor(imagen, 'descripcion') }}</span>
+            <p>{{ valor(imagen, 'informeRadiologico') }}</p>
+            <small *ngIf="valor(imagen, 'protocoloEnvio') !== 'No registrado'">{{ valor(imagen, 'protocoloEnvio') }} · {{ valor(imagen, 'archivoDicom') }}</small>
+          </div>
+          <button type="button" class="icon-action" (click)="verDicom(imagen)" [disabled]="valor(imagen, 'archivoDicom') === 'No registrado'">
+            <span class="material-symbols-outlined">visibility</span>
+            Ver DICOM
+          </button>
         </div>
         <p class="empty" *ngIf="historia.imagenes.length === 0">Sin estudios de imagenologia registrados.</p>
+
+        <article class="dicom-viewer" *ngIf="estudioSeleccionado">
+          <div class="viewer-head">
+            <div>
+              <p class="eyebrow">Visor DICOM</p>
+              <h3>{{ valor(estudioSeleccionado, 'archivoDicom') }}</h3>
+            </div>
+            <button type="button" class="text-action" (click)="cerrarVisorDicom()">Cerrar visor</button>
+          </div>
+          <p class="empty" *ngIf="cargandoDicom">Cargando imagen DICOM...</p>
+          <canvas #dicomCanvas class="dicom-canvas"></canvas>
+          <div class="dicom-meta" *ngIf="campos(dicomMetadata).length > 0">
+            <div *ngFor="let campo of campos(dicomMetadata)">
+              <span>{{ etiqueta(campo) }}</span>
+              <strong>{{ valor(dicomMetadata, campo) }}</strong>
+            </div>
+          </div>
+        </article>
     </section>
 
     <section *ngIf="activeView === 'paciente'">

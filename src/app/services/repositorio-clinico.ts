@@ -87,6 +87,13 @@ export class RepositorioClinicoService {
     });
   }
 
+  descargarDicom(id: string | number, token: string): Observable<ArrayBuffer> {
+    return this.http.get(`${this.apiUrl}/imagenes/${id}/dicom`, {
+      headers: this.authHeaders(token),
+      responseType: 'arraybuffer'
+    });
+  }
+
   private authHeaders(token: string): HttpHeaders {
     return new HttpHeaders({ Authorization: `Bearer ${token}` });
   }

@@ -731,9 +731,17 @@ button:disabled {
 }
 
 .study-row {
+  align-items: center;
   display: grid;
   gap: 12px;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto 1fr auto;
+}
+
+.study-row small {
+  color: #00346f;
+  display: block;
+  font-weight: 800;
+  margin-top: 6px;
 }
 
 .study-icon {
@@ -745,6 +753,68 @@ button:disabled {
   height: 42px;
   justify-content: center;
   width: 42px;
+}
+
+.icon-action {
+  align-items: center;
+  background: #eef4ff;
+  border: 1px solid #abc7ff;
+  color: #00346f;
+  cursor: pointer;
+  display: inline-flex;
+  font-weight: 800;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 10px;
+}
+
+.dicom-viewer {
+  background: #111820;
+  color: #ffffff;
+  margin-top: 20px;
+}
+
+.viewer-head {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.viewer-head h3 {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.dicom-canvas {
+  background: #000000;
+  display: block;
+  margin: 0 auto;
+  max-height: 68vh;
+  max-width: 100%;
+}
+
+.dicom-meta {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 14px;
+}
+
+.dicom-meta div {
+  background: #1b2631;
+  padding: 10px;
+}
+
+.dicom-meta span {
+  color: #a9b8c8;
+  font-weight: 800;
+}
+
+.dicom-meta strong {
+  color: #ffffff;
+  display: block;
+  margin-top: 4px;
+  overflow-wrap: anywhere;
 }
 
 .consult-form-grid {
