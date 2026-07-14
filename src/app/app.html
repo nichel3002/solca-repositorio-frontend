@@ -363,9 +363,17 @@
         <button type="button" class="secondary-action" (click)="cargarAuditoria()" [disabled]="cargandoAuditoria">{{ cargandoAuditoria ? 'Cargando...' : 'Ver auditoria' }}</button>
       </div>
       <div class="audit-table" *ngIf="auditoria.length > 0">
-        <div class="audit-row audit-head"><span>Usuario</span><span>Rol</span><span>Paciente</span><span>Resultado</span></div>
+        <div class="audit-row audit-head"><span>Usuario</span><span>Rol</span><span>Fecha</span><span>Hora</span><span>Direccion IP</span><span>Modulos</span><span>Paciente</span><span>Accion</span><span>Resultados</span></div>
         <div class="audit-row" *ngFor="let registro of auditoria">
-          <span>{{ valor(registro, 'usuario') }}</span><span>{{ valor(registro, 'rol') }}</span><span>{{ valor(registro, 'idPacienteRegional') }}</span><span>{{ valor(registro, 'resultado') }}</span>
+          <span>{{ valor(registro, 'usuario') }}</span>
+          <span>{{ valor(registro, 'rol') }}</span>
+          <span>{{ valorAuditoria(registro, 'fecha', 'fechaConsultaRepositorio') }}</span>
+          <span>{{ valor(registro, 'hora') }}</span>
+          <span>{{ valor(registro, 'direccionIp') }}</span>
+          <span>{{ valor(registro, 'modulos') }}</span>
+          <span>{{ valorAuditoria(registro, 'paciente', 'idPacienteRegional') }}</span>
+          <span>{{ valorAuditoria(registro, 'accion', 'criterioBusqueda') }}</span>
+          <span>{{ valorAuditoria(registro, 'resultados', 'resultado') }}</span>
         </div>
       </div>
       <p class="empty" *ngIf="auditoria.length === 0">Sin registros cargados en pantalla.</p>

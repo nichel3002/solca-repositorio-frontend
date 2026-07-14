@@ -838,8 +838,6 @@ button:disabled {
   color: #5e6673;
   font-size: 12px;
   font-weight: 800;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
 }
 
 .generated-field strong {
@@ -894,21 +892,18 @@ button:disabled {
   gap: 16px;
 }
 
-.audit-table {
-  border: 1px solid #d7dce4;
-  overflow: hidden;
-}
+.audit-table { border: 1px solid #d7dce4; overflow-x: auto; }
 
 .audit-row {
   display: grid;
   gap: 12px;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns:170px 105px 110px 90px 140px 230px 150px 210px 220px;
+  min-width: 1450px;
   padding: 10px 12px;
 }
 
-.audit-row + .audit-row {
-  border-top: 1px solid #e0e3e5;
-}
+
+.audit-row + .audit-row { border-top: 1px solid #e0e3e5; }
 
 .audit-head {
   background: #eef2f6;
@@ -970,8 +965,7 @@ button:disabled {
 
   .patient-fields,
   .identity-grid,
-  .consult-form-grid,
-  .audit-row {
+  .consult-form-grid {
     grid-template-columns: 1fr;
   }
 

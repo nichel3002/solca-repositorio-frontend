@@ -387,6 +387,11 @@ export class App {
     return valor === undefined || valor === null || valor === '' ? 'No registrado' : String(valor);
   }
 
+  valorAuditoria(registro: RegistroClinico, campo: string, respaldo: string): string {
+    const principal = this.valor(registro, campo);
+    return principal !== 'No registrado' ? principal : this.valor(registro, respaldo);
+  }
+
   etiqueta(campo: string): string {
     return campo
       .replace(/([A-Z])/g, ' $1')
