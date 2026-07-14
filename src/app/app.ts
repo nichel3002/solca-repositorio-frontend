@@ -335,12 +335,19 @@ export class App {
   }
 
   verDicom(estudio: RegistroClinico): void {
+    this.cerrarVisorDicom();
     if (!this.sesion) {
+      return;
+    }
+    if (!this.tieneDicom(estudio)) {
+      this.error = 'Este estudio no tiene DICOM disponible para visualizar.';
+      this.changeDetector.detectChanges();
       return;
     }
     const id = this.valor(estudio, 'id');
     if (id === 'No registrado') {
       this.error = 'El estudio no tiene identificador para abrir el DICOM.';
+      this.changeDetector.detectChanges();
       return;
     }
     this.estudioSeleccionado = estudio;
@@ -357,12 +364,14 @@ export class App {
         } catch {
           this.error = 'No se pudo visualizar este DICOM. Verifique que sea una imagen monocromatica sin compresion.';
           this.cargandoDicom = false;
+          this.cerrarVisorDicom();
           this.changeDetector.detectChanges();
         }
       },
       error: () => {
         this.error = 'Este estudio no tiene DICOM disponible para visualizar.';
         this.cargandoDicom = false;
+        this.cerrarVisorDicom();
         this.changeDetector.detectChanges();
       }
     });
@@ -390,6 +399,10 @@ export class App {
   valorAuditoria(registro: RegistroClinico, campo: string, respaldo: string): string {
     const principal = this.valor(registro, campo);
     return principal !== 'No registrado' ? principal : this.valor(registro, respaldo);
+  }
+
+  tieneDicom(registro: RegistroClinico): boolean {
+    return this.valor(registro, 'archivoDicom') !== 'No registrado';
   }
 
   etiqueta(campo: string): string {

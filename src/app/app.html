@@ -269,7 +269,7 @@
             <p>{{ valor(imagen, 'informeRadiologico') }}</p>
             <small *ngIf="valor(imagen, 'protocoloEnvio') !== 'No registrado'">{{ valor(imagen, 'protocoloEnvio') }} · {{ valor(imagen, 'archivoDicom') }}</small>
           </div>
-          <button type="button" class="icon-action" (click)="verDicom(imagen)" [disabled]="valor(imagen, 'archivoDicom') === 'No registrado'">
+          <button type="button" class="icon-action" (click)="verDicom(imagen)" [disabled]="!tieneDicom(imagen)">
             <span class="material-symbols-outlined">visibility</span>
             Ver DICOM
           </button>
@@ -285,7 +285,7 @@
             <button type="button" class="text-action" (click)="cerrarVisorDicom()">Cerrar visor</button>
           </div>
           <p class="empty" *ngIf="cargandoDicom">Cargando imagen DICOM...</p>
-          <canvas #dicomCanvas class="dicom-canvas"></canvas>
+          <canvas #dicomCanvas class="dicom-canvas" [hidden]="cargandoDicom || campos(dicomMetadata).length === 0"></canvas>
           <div class="dicom-meta" *ngIf="campos(dicomMetadata).length > 0">
             <div *ngFor="let campo of campos(dicomMetadata)">
               <span>{{ etiqueta(campo) }}</span>
