@@ -3,7 +3,7 @@ import * as dicomParser from 'dicom-parser';
 import { AuthResponse, HistoriaClinicaRegional, RegistroClinico, ServicioDisponible } from './models/historia-clinica.model';
 import { RepositorioClinicoService } from './services/repositorio-clinico';
 
-type AppView = 'dashboard' | 'paciente' | 'perfil' | 'historia' | 'laboratorio' | 'imagenologia' | 'consulta' | 'registroLaboratorio' | 'registroImagenologia' | 'auditoria';
+type AppView = 'dashboard' | 'repositorio' | 'paciente' | 'perfil' | 'historia' | 'laboratorio' | 'imagenologia' | 'consulta' | 'registroLaboratorio' | 'registroImagenologia' | 'auditoria';
 
 @Component({
   selector: 'app-root',
@@ -22,6 +22,7 @@ export class App {
   role: 'ADMIN' | 'MEDICO' | 'LABORATORIO' = 'MEDICO';
   sesion?: AuthResponse;
   historia?: HistoriaClinicaRegional;
+  repositorioCentral: RegistroClinico[] = [];
   auditoria: RegistroClinico[] = [];
   servicios: ServicioDisponible[] = [];
   estudioSeleccionado?: RegistroClinico;
@@ -146,6 +147,7 @@ export class App {
       next: (historia) => {
         this.historia = historia;
         this.cargando = false;
+        this.cargarRepositorioCentral();
         if (cambiarVista) {
           this.activeView = 'perfil';
         }
@@ -194,6 +196,29 @@ export class App {
         this.servicios = [];
         this.error = 'No se pudo consultar el estado real de los servicios.';
         this.cargandoServicios = false;
+        this.changeDetector.detectChanges();
+      }
+    });
+  }
+
+  cargarRepositorioCentral(): void {
+    if (!this.sesion || !this.historia?.paciente) {
+      this.repositorioCentral = [];
+      return;
+    }
+    const idPacienteRegional = this.valor(this.historia.paciente, 'idPacienteRegional');
+    if (idPacienteRegional === 'No registrado') {
+      this.repositorioCentral = [];
+      return;
+    }
+    this.repositorioClinico.obtenerRepositorioClinicoPorPaciente(idPacienteRegional, this.sesion.token).subscribe({
+      next: (registros) => {
+        this.repositorioCentral = registros;
+        this.changeDetector.detectChanges();
+      },
+      error: () => {
+        this.repositorioCentral = [];
+        this.error = 'No se pudo cargar la tabla central del repositorio.';
         this.changeDetector.detectChanges();
       }
     });
@@ -453,6 +478,7 @@ export class App {
   tituloVista(): string {
     const titulos: Record<AppView, string> = {
       dashboard: 'Busqueda de Pacientes',
+      repositorio: 'Repositorio Central',
       paciente: 'Registrar Paciente',
       perfil: 'Perfil del Paciente',
       historia: 'Historia Clinica',
@@ -469,6 +495,7 @@ export class App {
   cerrarSesion(): void {
     this.sesion = undefined;
     this.historia = undefined;
+    this.repositorioCentral = [];
     this.auditoria = [];
     this.servicios = [];
     this.error = '';
@@ -522,6 +549,28 @@ export class App {
     return this.valor(this.historia?.paciente, 'idPacienteRegional') !== 'No registrado'
       ? this.valor(this.historia?.paciente, 'idPacienteRegional')
       : this.idPacienteRegional.trim();
+  }
+
+  columnasRepositorio(): string[] {
+    return [
+      'idPacienteRegional',
+      'modulo',
+      'tipoRegistro',
+      'cedula',
+      'nombres',
+      'apellidos',
+      'sedeOrigen',
+      'fechaConsulta',
+      'diagnostico',
+      'fechaResultado',
+      'tipoExamen',
+      'resultadoLaboratorio',
+      'fechaEstudio',
+      'modalidad',
+      'descripcionImagen',
+      'archivoDicom',
+      'tieneDicom'
+    ];
   }
 
   private validarPaciente(): string {

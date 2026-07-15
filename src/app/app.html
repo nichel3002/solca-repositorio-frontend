@@ -73,6 +73,9 @@
       <button type="button" [class.nav-active]="activeView === 'dashboard'" (click)="seleccionarVista('dashboard')">
         <span class="material-symbols-outlined">dashboard</span> Dashboard / Busqueda
       </button>
+      <button type="button" [class.nav-active]="activeView === 'repositorio'" (click)="seleccionarVista('repositorio')">
+        <span class="material-symbols-outlined">table_view</span> Repositorio Central
+      </button>
       <button type="button" [class.nav-active]="activeView === 'paciente'" (click)="seleccionarVista('paciente')" *ngIf="sesion.role === 'ADMIN' || sesion.role === 'MEDICO'">
         <span class="material-symbols-outlined">person_add</span> Registrar Paciente
       </button>
@@ -201,7 +204,7 @@
       </section>
     </section>
 
-    <section class="empty-state" *ngIf="activeView !== 'dashboard' && activeView !== 'paciente' && activeView !== 'auditoria' && !historia">
+    <section class="empty-state" *ngIf="activeView !== 'dashboard' && activeView !== 'paciente' && activeView !== 'auditoria' && activeView !== 'repositorio' && !historia">
       <span class="material-symbols-outlined">manage_search</span>
       <h3>Primero consulte un paciente</h3>
       <p>Use Dashboard / Busqueda para cargar la historia regional y luego revise perfil, historia clinica, laboratorio e imagenologia.</p>
@@ -209,6 +212,37 @@
         <span class="material-symbols-outlined">search</span>
         Ir a busqueda
       </button>
+    </section>
+
+    <section class="module-card repository-panel" *ngIf="activeView === 'repositorio'">
+      <div class="panel-title-row">
+        <div class="section-title">
+          <span class="material-symbols-outlined">table_view</span>
+          <div>
+            <h3>Tabla central del repositorio</h3>
+            <p>Paciente maestro, consultas, laboratorio e imagenologia consolidados en una sola vista.</p>
+          </div>
+        </div>
+        <button type="button" class="secondary-action" (click)="cargarRepositorioCentral()" [disabled]="!historia">
+          Actualizar tabla
+        </button>
+      </div>
+      <div class="repository-summary" *ngIf="historia">
+        <span>Paciente maestro: {{ valor(historia.paciente, 'idPacienteRegional') }}</span>
+        <span>Filas centrales: {{ repositorioCentral.length }}</span>
+        <span>Laboratorio: {{ totalLaboratorio() }}</span>
+        <span>Imagenologia: {{ totalImagenes() }}</span>
+      </div>
+      <div class="repository-table" *ngIf="repositorioCentral.length > 0">
+        <div class="repository-row repository-head">
+          <span *ngFor="let columna of columnasRepositorio()">{{ etiqueta(columna) }}</span>
+        </div>
+        <div class="repository-row" *ngFor="let registro of repositorioCentral">
+          <span *ngFor="let columna of columnasRepositorio()">{{ valor(registro, columna) }}</span>
+        </div>
+      </div>
+      <p class="empty" *ngIf="!historia">Primero consulte un paciente por cedula o Master ID para cargar la tabla central.</p>
+      <p class="empty" *ngIf="historia && repositorioCentral.length === 0">Sin registros cargados en el repositorio central para este paciente.</p>
     </section>
 
     <section class="patient-master" *ngIf="activeView === 'perfil' && historia">

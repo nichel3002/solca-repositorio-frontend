@@ -43,6 +43,12 @@ export class RepositorioClinicoService {
     });
   }
 
+  obtenerRepositorioClinicoPorPaciente(idPacienteRegional: string, token: string): Observable<RegistroClinico[]> {
+    return this.http.get<RegistroClinico[]>(`${this.apiUrl}/clinico/paciente/${idPacienteRegional}`, {
+      headers: this.authHeaders(token)
+    });
+  }
+
   crearPaciente(paciente: RegistroClinico, token: string): Observable<RegistroClinico> {
     return this.http.post<RegistroClinico>(`${this.apiUrl}/pacientes`, paciente, {
       headers: this.authHeaders(token)

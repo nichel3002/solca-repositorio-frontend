@@ -876,6 +876,59 @@ button:disabled {
   margin-top: 20px;
 }
 
+.repository-panel {
+  overflow: hidden;
+}
+
+.repository-summary {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-bottom: 14px;
+}
+
+.repository-summary span {
+  background: #f2f4f6;
+  border: 1px solid #d7dce4;
+  color: #00346f;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+  padding: 10px 12px;
+}
+
+.repository-table {
+  border: 1px solid #d7dce4;
+  overflow-x: auto;
+}
+
+.repository-row {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 130px 170px 170px 110px 160px 170px 150px 130px 220px 140px 150px 180px 130px 110px 220px 190px 90px;
+  min-width: 2600px;
+  padding: 10px 12px;
+}
+
+.repository-row + .repository-row {
+  border-top: 1px solid #e0e3e5;
+}
+
+.repository-row span {
+  color: #191c1e;
+  overflow-wrap: anywhere;
+}
+
+.repository-head {
+  background: #eef2f6;
+  color: #00346f;
+  font-weight: 800;
+}
+
+.repository-head span {
+  color: #00346f;
+}
+
 .registration-card {
   margin-bottom: 20px;
 }
@@ -955,6 +1008,10 @@ button:disabled {
   .lab-row {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .repository-summary {
+    grid-template-columns: 1fr;
   }
 }
 
