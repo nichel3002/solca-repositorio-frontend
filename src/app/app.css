@@ -148,16 +148,18 @@
   border-right: 1px solid #c2c6d3;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
+  height: 100vh;
+  overflow: hidden;
   padding: 24px 0;
   position: sticky;
   top: 0;
-  height: 100vh;
 }
 
 .brand-block {
   align-items: center;
   display: flex;
+  flex-shrink: 0;
   gap: 12px;
   padding: 0 20px;
 }
@@ -201,6 +203,28 @@
 .nav-list {
   display: flex;
   flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  padding-bottom: 8px;
+  scrollbar-color: #8b94a1 #eef2f6;
+  scrollbar-width: thin;
+}
+
+.nav-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.nav-list::-webkit-scrollbar-track {
+  background: #eef2f6;
+}
+
+.nav-list::-webkit-scrollbar-thumb {
+  background: #8b94a1;
+  border-radius: 999px;
+}
+
+.nav-list::-webkit-scrollbar-thumb:hover {
+  background: #5e6673;
 }
 
 .nav-group {
@@ -242,7 +266,8 @@
 .side-card {
   background: #ffffff;
   border: 1px solid #c2c6d3;
-  margin: auto 16px 0;
+  flex-shrink: 0;
+  margin: 0 16px;
   padding: 16px;
 }
 
@@ -984,7 +1009,13 @@ button:disabled {
 
   .sidebar {
     height: auto;
+    max-height: 80vh;
+    overflow-y: auto;
     position: static;
+  }
+
+  .nav-list {
+    overflow-y: visible;
   }
 
   .search-hero,

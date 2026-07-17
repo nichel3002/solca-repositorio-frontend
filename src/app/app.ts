@@ -505,7 +505,18 @@ export class App {
   }
 
   seleccionarVista(vista: AppView): void {
+    if (this.activeView !== vista) {
+      this.error = '';
+      this.exito = '';
+    }
+    if (this.activeView === 'imagenologia' && vista !== 'imagenologia') {
+      this.cerrarVisorDicom();
+    }
     this.activeView = vista;
+    if (vista === 'auditoria' && this.auditoria.length === 0) {
+      this.cargarAuditoria();
+    }
+    this.changeDetector.detectChanges();
   }
 
   private guardar(operacion: () => import('rxjs').Observable<RegistroClinico>, mensaje: string): void {
