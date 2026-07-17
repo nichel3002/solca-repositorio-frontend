@@ -680,31 +680,88 @@ export class App {
   }
 
   columnasRepositorio(): string[] {
-    return [
+    const columnasPreferidas = [
       'idPacienteRegional',
       'modulo',
       'tipoRegistro',
+      'idOrigen',
+      'sede',
+      'fechaRegistro',
       'cedula',
       'nombres',
       'apellidos',
       'sedeOrigen',
+      'fechaNacimiento',
+      'sexo',
+      'direccion',
+      'telefono',
       'fechaConsulta',
+      'especialidad',
       'diagnostico',
+      'medicoTratante',
+      'observaciones',
       'idHistoriaClinica',
       'fechaApertura',
+      'estadoHistoria',
       'codigoCie10',
       'diagnosticoPrincipal',
+      'diagnosticosSecundarios',
       'motivoConsulta',
+      'enfermedadActual',
+      'fechaInicioSintomas',
+      'signosSintomasPrincipales',
+      'tipoCancer',
+      'localizacionTumor',
+      'lateralidad',
       'estadioClinico',
+      'clasificacionTnm',
+      'baseDiagnostica',
+      'peso',
+      'talla',
+      'presionArterial',
+      'estadoFuncionalEcog',
+      'examenFisicoGeneral',
+      'planTratamiento',
+      'intencionTratamiento',
+      'medicoResponsable',
+      'proximaCita',
       'fechaResultado',
       'tipoExamen',
       'resultadoLaboratorio',
+      'resultado',
+      'unidad',
+      'rangoReferencia',
       'fechaEstudio',
       'modalidad',
       'descripcionImagen',
+      'descripcion',
+      'urlPacs',
+      'informeRadiologico',
       'archivoDicom',
+      'protocoloEnvio',
+      'estadoEnvio',
       'tieneDicom'
     ];
+    const columnas = new Set<string>();
+    const filas = this.repositorioCentral.map((registro) => this.filaRepositorio(registro));
+    columnasPreferidas.forEach((columna) => {
+      if (filas.some((fila) => this.valorPlano(fila[columna]) !== '')) {
+        columnas.add(columna);
+      }
+    });
+    filas.forEach((fila) => {
+      Object.keys(fila).forEach((columna) => {
+        if (columna !== 'datosJson' && this.valorPlano(fila[columna]) !== '') {
+          columnas.add(columna);
+        }
+      });
+    });
+    return Array.from(columnas);
+  }
+
+  valorRepositorio(registro: RegistroClinico, campo: string): string {
+    const valor = this.valorPlano(this.filaRepositorio(registro)[campo]);
+    return valor || '';
   }
 
   private detalleSiExiste(registro: RegistroClinico, etiqueta: string, campo: string): string | undefined {
@@ -720,6 +777,39 @@ export class App {
       }
     }
     return 'No registrado';
+  }
+
+  private filaRepositorio(registro: RegistroClinico): Record<string, unknown> {
+    const datos = this.datosJsonRepositorio(registro);
+    return {
+      ...datos,
+      ...registro,
+      resultadoLaboratorio: registro['resultadoLaboratorio'] ?? datos['resultado'],
+      descripcionImagen: registro['descripcionImagen'] ?? datos['descripcion']
+    };
+  }
+
+  private datosJsonRepositorio(registro: RegistroClinico): Record<string, unknown> {
+    const datosJson = registro['datosJson'];
+    if (typeof datosJson !== 'string' || !datosJson.trim()) {
+      return {};
+    }
+    try {
+      const datos = JSON.parse(datosJson) as Record<string, unknown>;
+      return datos && typeof datos === 'object' ? datos : {};
+    } catch {
+      return {};
+    }
+  }
+
+  private valorPlano(valor: unknown): string {
+    if (valor === undefined || valor === null || valor === '') {
+      return '';
+    }
+    if (typeof valor === 'object') {
+      return JSON.stringify(valor);
+    }
+    return String(valor);
   }
 
   private validarPaciente(): string {

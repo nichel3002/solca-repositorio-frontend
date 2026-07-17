@@ -238,22 +238,18 @@
         <span>Imagenologia: {{ totalImagenes() }}</span>
       </div>
       <div class="repository-table" *ngIf="repositorioCentral.length > 0">
-        <div class="repository-row repository-head">
-          <span>Modulo</span>
-          <span>Tipo</span>
-          <span>Fecha</span>
-          <span>Resumen</span>
-          <span>Detalle del registro</span>
-        </div>
-        <div class="repository-row" *ngFor="let registro of repositorioCentral">
-          <span>{{ valor(registro, 'modulo') }}</span>
-          <span>{{ valor(registro, 'tipoRegistro') }}</span>
-          <span>{{ fechaRepositorio(registro) }}</span>
-          <span>{{ valor(registro, 'resumen') }}</span>
-          <span class="repository-detail">
-            <small *ngFor="let detalle of detallesRepositorio(registro)">{{ detalle }}</small>
-          </span>
-        </div>
+        <table class="repository-grid">
+          <thead>
+            <tr>
+              <th *ngFor="let columna of columnasRepositorio()">{{ etiqueta(columna) }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let registro of repositorioCentral">
+              <td *ngFor="let columna of columnasRepositorio()">{{ valorRepositorio(registro, columna) }}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
       <p class="empty" *ngIf="!historia">Primero consulte un paciente por cedula o Master ID para cargar la tabla central.</p>
       <p class="empty" *ngIf="historia && repositorioCentral.length === 0">Sin registros cargados en el repositorio central para este paciente.</p>

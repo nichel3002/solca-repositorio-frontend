@@ -933,34 +933,45 @@ button:disabled {
 
 .repository-table {
   border: 1px solid #d7dce4;
+  max-height: 620px;
   overflow-x: auto;
+  overflow-y: auto;
 }
 
-.repository-row {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: 170px 190px 130px minmax(230px, 0.9fr) minmax(360px, 1.6fr);
-  min-width: 1080px;
-  padding: 12px;
+.repository-grid {
+  border-collapse: collapse;
+  min-width: 1900px;
+  width: max-content;
 }
 
-.repository-row + .repository-row {
-  border-top: 1px solid #e0e3e5;
-}
-
-.repository-row span {
+.repository-grid th,
+.repository-grid td {
+  border-bottom: 1px solid #e0e3e5;
   color: #191c1e;
+  max-width: 260px;
+  min-width: 140px;
   overflow-wrap: anywhere;
+  padding: 12px;
+  text-align: left;
+  vertical-align: top;
 }
 
-.repository-head {
+.repository-grid th {
   background: #eef2f6;
   color: #00346f;
   font-weight: 800;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
-.repository-head span {
-  color: #00346f;
+.repository-grid tr:last-child td {
+  border-bottom: 0;
+}
+
+.repository-grid td:empty::after {
+  color: #8b94a1;
+  content: "-";
 }
 
 .repository-detail {
