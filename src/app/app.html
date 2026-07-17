@@ -239,10 +239,20 @@
       </div>
       <div class="repository-table" *ngIf="repositorioCentral.length > 0">
         <div class="repository-row repository-head">
-          <span *ngFor="let columna of columnasRepositorio()">{{ etiqueta(columna) }}</span>
+          <span>Modulo</span>
+          <span>Tipo</span>
+          <span>Fecha</span>
+          <span>Resumen</span>
+          <span>Detalle del registro</span>
         </div>
         <div class="repository-row" *ngFor="let registro of repositorioCentral">
-          <span *ngFor="let columna of columnasRepositorio()">{{ valor(registro, columna) }}</span>
+          <span>{{ valor(registro, 'modulo') }}</span>
+          <span>{{ valor(registro, 'tipoRegistro') }}</span>
+          <span>{{ fechaRepositorio(registro) }}</span>
+          <span>{{ valor(registro, 'resumen') }}</span>
+          <span class="repository-detail">
+            <small *ngFor="let detalle of detallesRepositorio(registro)">{{ detalle }}</small>
+          </span>
         </div>
       </div>
       <p class="empty" *ngIf="!historia">Primero consulte un paciente por cedula o Master ID para cargar la tabla central.</p>

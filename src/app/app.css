@@ -938,10 +938,10 @@ button:disabled {
 
 .repository-row {
   display: grid;
-  gap: 10px;
-  grid-template-columns: repeat(23, minmax(130px, 1fr));
-  min-width: 3300px;
-  padding: 10px 12px;
+  gap: 12px;
+  grid-template-columns: 170px 190px 130px minmax(230px, 0.9fr) minmax(360px, 1.6fr);
+  min-width: 1080px;
+  padding: 12px;
 }
 
 .repository-row + .repository-row {
@@ -961,6 +961,16 @@ button:disabled {
 
 .repository-head span {
   color: #00346f;
+}
+
+.repository-detail {
+  display: grid;
+  gap: 4px;
+}
+
+.repository-detail small {
+  color: #2f343b;
+  line-height: 1.35;
 }
 
 .registration-card {

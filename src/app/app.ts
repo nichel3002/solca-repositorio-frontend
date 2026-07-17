@@ -533,6 +533,61 @@ export class App {
     return lista.length > 0 ? this.valor(lista[0], campoFecha) : 'Sin registros';
   }
 
+  fechaRepositorio(registro: RegistroClinico): string {
+    return this.primerValor(registro, ['fechaRegistro', 'fechaConsulta', 'fechaResultado', 'fechaEstudio', 'fechaApertura', 'fechaNacimiento']);
+  }
+
+  detallesRepositorio(registro: RegistroClinico): string[] {
+    const tipo = this.valor(registro, 'tipoRegistro');
+    const camposPorTipo: Record<string, Array<[string, string]>> = {
+      PACIENTE: [
+        ['Cedula', 'cedula'],
+        ['Nombres', 'nombres'],
+        ['Apellidos', 'apellidos'],
+        ['Sede origen', 'sedeOrigen'],
+        ['Nacimiento', 'fechaNacimiento'],
+        ['Sexo', 'sexo'],
+        ['Direccion', 'direccion'],
+        ['Telefono', 'telefono']
+      ],
+      CONSULTA: [
+        ['Especialidad', 'especialidad'],
+        ['Diagnostico', 'diagnostico'],
+        ['Medico', 'medicoTratante'],
+        ['Observaciones', 'observaciones']
+      ],
+      HISTORIA_CLINICA: [
+        ['Historia', 'idHistoriaClinica'],
+        ['CIE10', 'codigoCie10'],
+        ['Diagnostico principal', 'diagnosticoPrincipal'],
+        ['Motivo', 'motivoConsulta'],
+        ['Estadio', 'estadioClinico'],
+        ['Plan', 'planTratamiento'],
+        ['Medico responsable', 'medicoResponsable']
+      ],
+      RESULTADO_LABORATORIO: [
+        ['Examen', 'tipoExamen'],
+        ['Resultado', 'resultadoLaboratorio'],
+        ['Unidad', 'unidad'],
+        ['Rango', 'rangoReferencia']
+      ],
+      ESTUDIO_IMAGEN: [
+        ['Modalidad', 'modalidad'],
+        ['Descripcion', 'descripcionImagen'],
+        ['Informe', 'informeRadiologico'],
+        ['Archivo DICOM', 'archivoDicom'],
+        ['Protocolo', 'protocoloEnvio'],
+        ['Estado envio', 'estadoEnvio'],
+        ['Tiene DICOM', 'tieneDicom']
+      ]
+    };
+    const campos = camposPorTipo[tipo] ?? [];
+    const detalles = campos
+      .map(([etiqueta, campo]) => this.detalleSiExiste(registro, etiqueta, campo))
+      .filter((detalle): detalle is string => Boolean(detalle));
+    return detalles.length > 0 ? detalles : [this.valor(registro, 'datosJson')];
+  }
+
   tituloVista(): string {
     const titulos: Record<AppView, string> = {
       dashboard: 'Busqueda de Pacientes',
@@ -650,6 +705,21 @@ export class App {
       'archivoDicom',
       'tieneDicom'
     ];
+  }
+
+  private detalleSiExiste(registro: RegistroClinico, etiqueta: string, campo: string): string | undefined {
+    const valor = this.valor(registro, campo);
+    return valor === 'No registrado' ? undefined : `${etiqueta}: ${valor}`;
+  }
+
+  private primerValor(registro: RegistroClinico, campos: string[]): string {
+    for (const campo of campos) {
+      const valor = this.valor(registro, campo);
+      if (valor !== 'No registrado') {
+        return valor;
+      }
+    }
+    return 'No registrado';
   }
 
   private validarPaciente(): string {
