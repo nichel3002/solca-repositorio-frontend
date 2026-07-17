@@ -412,6 +412,10 @@ button:disabled {
   color: #00346f;
 }
 
+.compact-action {
+  align-self: end;
+}
+
 .error-banner,
 .success-banner {
   align-items: center;
@@ -869,6 +873,11 @@ button:disabled {
   color: #00346f;
   font-family: 'JetBrains Mono', monospace;
   font-size: 15px;
+}
+
+.cie10-detail small {
+  color: #424751;
+  line-height: 1.35;
 }
 
 .consult-form-grid .wide {

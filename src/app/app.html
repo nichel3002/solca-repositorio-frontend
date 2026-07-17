@@ -377,8 +377,14 @@
         </div>
         <label>Fecha apertura<input type="date" [(ngModel)]="nuevaHistoria['fechaApertura']" /></label>
         <label>Estado historia<select [(ngModel)]="nuevaHistoria['estadoHistoria']"><option>ACTIVA</option><option>CERRADA</option><option>ARCHIVADA</option></select></label>
-        <label>Buscar CIE10<input #cie10Input placeholder="Ej. mama, pulmon, C50" (keyup.enter)="buscarCie10(cie10Input.value)" /></label>
-        <label>CIE10<select [(ngModel)]="nuevaHistoria['codigoCie10']" (change)="seleccionarCie10(cie10[$any($event.target).selectedIndex])"><option *ngFor="let codigo of cie10" [value]="valor(codigo, 'codigo')">{{ valor(codigo, 'codigo') }} - {{ valor(codigo, 'descripcion') }}</option></select></label>
+        <label>Buscar CIE10<input [(ngModel)]="cie10Termino" placeholder="Ej. mama, pulmon, C50" (keyup.enter)="buscarCie10()" /></label>
+        <button type="button" class="secondary-action compact-action" (click)="buscarCie10()" [disabled]="!sesion">Buscar CIE10</button>
+        <label>CIE10<select [(ngModel)]="nuevaHistoria['codigoCie10']" (ngModelChange)="seleccionarCie10PorCodigo($event)"><option value="">Seleccione CIE10</option><option *ngFor="let codigo of cie10" [value]="valor(codigo, 'codigo')">{{ valor(codigo, 'codigo') }} - {{ valor(codigo, 'descripcion') }}</option></select></label>
+        <div class="generated-field cie10-detail">
+          <span>Detalle CIE10</span>
+          <strong>{{ nuevaHistoria['codigoCie10'] || 'Sin seleccionar' }}</strong>
+          <small>{{ nuevaHistoria['diagnosticoPrincipal'] || 'Busque y seleccione un diagnostico desde la base de datos.' }}</small>
+        </div>
         <label class="wide">Diagnostico principal<input [(ngModel)]="nuevaHistoria['diagnosticoPrincipal']" readonly /></label>
 
         <label class="wide">Motivo consulta<textarea rows="3" [(ngModel)]="nuevaHistoria['motivoConsulta']"></textarea></label>

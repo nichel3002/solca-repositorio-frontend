@@ -25,6 +25,7 @@ export class App {
   repositorioCentral: RegistroClinico[] = [];
   auditoria: RegistroClinico[] = [];
   cie10: RegistroClinico[] = [];
+  cie10Termino = '';
   servicios: ServicioDisponible[] = [];
   estudioSeleccionado?: RegistroClinico;
   dicomMetadata: RegistroClinico = {};
@@ -301,14 +302,15 @@ export class App {
     );
   }
 
-  buscarCie10(termino = ''): void {
+  buscarCie10(termino = this.cie10Termino): void {
     if (!this.sesion) {
       return;
     }
-    this.repositorioClinico.buscarCie10(termino, this.sesion.token).subscribe({
+    this.cie10Termino = termino.trim();
+    this.repositorioClinico.buscarCie10(this.cie10Termino, this.sesion.token).subscribe({
       next: (cie10) => {
         this.cie10 = cie10;
-        if (!this.nuevaHistoria['codigoCie10'] && cie10.length > 0) {
+        if (!this.nuevaHistoria['codigoCie10'] && cie10.length === 1) {
           this.seleccionarCie10(cie10[0]);
         }
         this.changeDetector.detectChanges();
@@ -323,6 +325,13 @@ export class App {
   seleccionarCie10(registro: RegistroClinico): void {
     this.nuevaHistoria['codigoCie10'] = this.valor(registro, 'codigo');
     this.nuevaHistoria['diagnosticoPrincipal'] = this.valor(registro, 'descripcion');
+  }
+
+  seleccionarCie10PorCodigo(codigo: string): void {
+    const registro = this.cie10.find((item) => this.valor(item, 'codigo') === codigo);
+    if (registro) {
+      this.seleccionarCie10(registro);
+    }
   }
 
   crearLaboratorio(): void {
