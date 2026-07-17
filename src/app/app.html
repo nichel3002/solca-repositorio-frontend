@@ -102,8 +102,8 @@
       <button type="button" [class.nav-active]="activeView === 'registroImagenologia'" (click)="seleccionarVista('registroImagenologia')" *ngIf="sesion.role === 'ADMIN' || sesion.role === 'MEDICO'">
         <span class="material-symbols-outlined">upload_file</span> Enviar DICOM
       </button>
-      <span class="nav-group" *ngIf="sesion.role === 'ADMIN'">Administracion</span>
-      <button type="button" [class.nav-active]="activeView === 'auditoria'" (click)="seleccionarVista('auditoria')" *ngIf="sesion.role === 'ADMIN'">
+      <span class="nav-group">Administracion</span>
+      <button type="button" [class.nav-active]="activeView === 'auditoria'" (click)="seleccionarVista('auditoria')">
         <span class="material-symbols-outlined">admin_panel_settings</span> Auditoria
       </button>
     </nav>
@@ -391,7 +391,7 @@
       <button type="button" class="secondary-action" (click)="crearImagen()" [disabled]="guardando || !historia || !archivoDicom">Enviar DICOM</button>
     </section>
 
-    <section class="audit-panel" *ngIf="activeView === 'auditoria' && sesion.role === 'ADMIN'">
+    <section class="audit-panel" *ngIf="activeView === 'auditoria'">
       <div class="panel-title-row">
         <div class="section-title"><span class="material-symbols-outlined">admin_panel_settings</span><div><h3>Auditoria basica</h3><p>Consultas realizadas al repositorio regional.</p></div></div>
         <button type="button" class="secondary-action" (click)="cargarAuditoria()" [disabled]="cargandoAuditoria">{{ cargandoAuditoria ? 'Cargando...' : 'Ver auditoria' }}</button>

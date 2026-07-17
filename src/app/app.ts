@@ -162,7 +162,7 @@ export class App {
   }
 
   cargarAuditoria(): void {
-    if (!this.sesion || this.sesion.role !== 'ADMIN') {
+    if (!this.sesion) {
       return;
     }
     this.cargandoAuditoria = true;
@@ -174,7 +174,7 @@ export class App {
         this.changeDetector.detectChanges();
       },
       error: () => {
-        this.error = 'No se pudo consultar la auditoria. Requiere rol ADMIN.';
+        this.error = 'No se pudo consultar la auditoria.';
         this.cargandoAuditoria = false;
         this.changeDetector.detectChanges();
       }
