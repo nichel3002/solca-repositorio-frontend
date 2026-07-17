@@ -61,6 +61,18 @@ export class RepositorioClinicoService {
     });
   }
 
+  crearHistoriaClinica(historia: RegistroClinico, token: string): Observable<RegistroClinico> {
+    return this.http.post<RegistroClinico>(`${this.apiUrl}/historias`, historia, {
+      headers: this.authHeaders(token)
+    });
+  }
+
+  buscarCie10(termino: string, token: string): Observable<RegistroClinico[]> {
+    return this.http.get<RegistroClinico[]>(`${this.apiUrl}/cie10?q=${encodeURIComponent(termino)}`, {
+      headers: this.authHeaders(token)
+    });
+  }
+
   crearLaboratorio(resultado: RegistroClinico, token: string): Observable<RegistroClinico> {
     return this.http.post<RegistroClinico>(`${this.apiUrl}/laboratorio`, resultado, {
       headers: this.authHeaders(token)

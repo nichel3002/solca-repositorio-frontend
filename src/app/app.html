@@ -93,6 +93,9 @@
         <span class="material-symbols-outlined">radiology</span> Imagenologia
       </button>
       <span class="nav-group">Registro clinico</span>
+      <button type="button" [class.nav-active]="activeView === 'registroHistoria'" (click)="seleccionarVista('registroHistoria')" *ngIf="sesion.role === 'ADMIN' || sesion.role === 'MEDICO'">
+        <span class="material-symbols-outlined">assignment_add</span> Registrar Historia
+      </button>
       <button type="button" [class.nav-active]="activeView === 'consulta'" (click)="seleccionarVista('consulta')">
         <span class="material-symbols-outlined">medical_services</span> Nueva Consulta
       </button>
@@ -166,6 +169,7 @@
 
       <section class="dashboard-grid">
         <article class="metric-card"><span class="material-symbols-outlined">badge</span><div><p>Paciente maestro</p><strong>{{ historia ? valor(historia.paciente, 'idPacienteRegional') : 'Sin consulta' }}</strong></div></article>
+        <article class="metric-card"><span class="material-symbols-outlined">history_edu</span><div><p>Historias clinicas</p><strong>{{ totalHistoriasClinicas() }}</strong></div></article>
         <article class="metric-card"><span class="material-symbols-outlined">clinical_notes</span><div><p>Consultas</p><strong>{{ totalConsultas() }}</strong></div></article>
         <article class="metric-card"><span class="material-symbols-outlined">biotech</span><div><p>Laboratorio</p><strong>{{ totalLaboratorio() }}</strong></div></article>
         <article class="metric-card"><span class="material-symbols-outlined">radiology</span><div><p>Imagenologia</p><strong>{{ totalImagenes() }}</strong></div></article>
@@ -274,14 +278,15 @@
     </section>
 
     <section class="module-card" *ngIf="activeView === 'historia' && historia">
-      <div class="section-title"><span class="material-symbols-outlined">oncology</span><div><h3>Historia clinica oncologica</h3><p>{{ totalRegistros() }} registros integrados desde la red SOLCA.</p></div></div>
-      <div class="timeline-item" *ngFor="let consulta of historia.consultas">
-        <strong>{{ valor(consulta, 'especialidad') }} · {{ valor(consulta, 'fechaConsulta') }}</strong>
-        <span>{{ valor(consulta, 'sede') }} · {{ valor(consulta, 'medicoTratante') }}</span>
-        <p>{{ valor(consulta, 'diagnostico') }}</p>
-        <p>{{ valor(consulta, 'observaciones') }}</p>
+      <div class="section-title"><span class="material-symbols-outlined">oncology</span><div><h3>Historia clinica oncologica</h3><p>Expediente longitudinal del paciente, separado de las consultas.</p></div></div>
+      <div class="timeline-item" *ngFor="let registro of historia.historiasClinicas">
+        <strong>{{ valor(registro, 'idHistoriaClinica') }} · {{ valor(registro, 'fechaApertura') }}</strong>
+        <span>{{ valor(registro, 'codigoCie10') }} · {{ valor(registro, 'diagnosticoPrincipal') }} · {{ valor(registro, 'estadoHistoria') }}</span>
+        <p><strong>Motivo:</strong> {{ valor(registro, 'motivoConsulta') }}</p>
+        <p><strong>Enfermedad actual:</strong> {{ valor(registro, 'enfermedadActual') }}</p>
+        <p><strong>Plan:</strong> {{ valor(registro, 'planTratamiento') }}</p>
       </div>
-      <p class="empty" *ngIf="historia.consultas.length === 0">Sin consultas registradas.</p>
+      <p class="empty" *ngIf="historia.historiasClinicas.length === 0">Sin historia clinica registrada.</p>
     </section>
 
     <section class="module-card" *ngIf="activeView === 'laboratorio' && historia">
@@ -361,6 +366,46 @@
         <label class="wide">Observaciones<textarea rows="4" [(ngModel)]="nuevaConsulta['observaciones']"></textarea></label>
       </div>
       <button type="button" class="secondary-action" (click)="crearConsulta()" [disabled]="guardando || !historia">Guardar consulta</button>
+    </section>
+
+    <section class="module-card" *ngIf="activeView === 'registroHistoria' && historia">
+      <div class="module-head"><span class="material-symbols-outlined">assignment_add</span><div><h3>Nueva historia clinica</h3><p>Expediente clinico integral. El ID se genera automaticamente al guardar.</p></div></div>
+      <div class="consult-form-grid">
+        <div class="generated-field">
+          <span>ID historia clinica</span>
+          <strong>Automatico al guardar</strong>
+        </div>
+        <label>Fecha apertura<input type="date" [(ngModel)]="nuevaHistoria['fechaApertura']" /></label>
+        <label>Estado historia<select [(ngModel)]="nuevaHistoria['estadoHistoria']"><option>ACTIVA</option><option>CERRADA</option><option>ARCHIVADA</option></select></label>
+        <label>Buscar CIE10<input #cie10Input placeholder="Ej. mama, pulmon, C50" (keyup.enter)="buscarCie10(cie10Input.value)" /></label>
+        <label>CIE10<select [(ngModel)]="nuevaHistoria['codigoCie10']" (change)="seleccionarCie10(cie10[$any($event.target).selectedIndex])"><option *ngFor="let codigo of cie10" [value]="valor(codigo, 'codigo')">{{ valor(codigo, 'codigo') }} - {{ valor(codigo, 'descripcion') }}</option></select></label>
+        <label class="wide">Diagnostico principal<input [(ngModel)]="nuevaHistoria['diagnosticoPrincipal']" readonly /></label>
+
+        <label class="wide">Motivo consulta<textarea rows="3" [(ngModel)]="nuevaHistoria['motivoConsulta']"></textarea></label>
+        <label class="wide">Enfermedad actual<textarea rows="4" [(ngModel)]="nuevaHistoria['enfermedadActual']"></textarea></label>
+        <label>Tipo cancer<input [(ngModel)]="nuevaHistoria['tipoCancer']" /></label>
+        <label>Localizacion tumor<input [(ngModel)]="nuevaHistoria['localizacionTumor']" /></label>
+        <label>Lateralidad<input [(ngModel)]="nuevaHistoria['lateralidad']" /></label>
+        <label>Estadio clinico<input [(ngModel)]="nuevaHistoria['estadioClinico']" /></label>
+        <label>TNM<input [(ngModel)]="nuevaHistoria['clasificacionTnm']" /></label>
+        <label>Base diagnostica<input [(ngModel)]="nuevaHistoria['baseDiagnostica']" /></label>
+
+        <label>Peso<input [(ngModel)]="nuevaHistoria['peso']" placeholder="62 kg" /></label>
+        <label>Talla<input [(ngModel)]="nuevaHistoria['talla']" placeholder="1.60 m" /></label>
+        <label>Presion arterial<input [(ngModel)]="nuevaHistoria['presionArterial']" placeholder="120/80" /></label>
+        <label>ECOG<input [(ngModel)]="nuevaHistoria['estadoFuncionalEcog']" /></label>
+        <label class="wide">Antecedentes personales<textarea rows="3" [(ngModel)]="nuevaHistoria['antecedentesPatologicosPersonales']"></textarea></label>
+        <label class="wide">Antecedentes familiares oncologicos<textarea rows="3" [(ngModel)]="nuevaHistoria['antecedentesOncologicosFamiliares']"></textarea></label>
+        <label class="wide">Examen fisico<textarea rows="3" [(ngModel)]="nuevaHistoria['examenFisicoGeneral']"></textarea></label>
+
+        <label>Intencion tratamiento<select [(ngModel)]="nuevaHistoria['intencionTratamiento']"><option>Curativo</option><option>Paliativo</option><option>Control</option><option>Seguimiento</option></select></label>
+        <label>Medico responsable<input [(ngModel)]="nuevaHistoria['medicoResponsable']" /></label>
+        <label class="wide">Plan terapeutico<textarea rows="4" [(ngModel)]="nuevaHistoria['planTratamiento']"></textarea></label>
+        <label>Proxima cita<input type="date" [(ngModel)]="nuevaHistoria['proximaCita']" /></label>
+        <label>Consentimiento<select [(ngModel)]="nuevaHistoria['consentimientoInformado']"><option>SI</option><option>NO</option></select></label>
+        <label class="wide">Recomendaciones<textarea rows="3" [(ngModel)]="nuevaHistoria['recomendaciones']"></textarea></label>
+      </div>
+      <button type="button" class="secondary-action" (click)="crearHistoriaClinica()" [disabled]="guardando || !historia">Guardar historia clinica</button>
     </section>
 
     <section class="module-card" *ngIf="activeView === 'registroLaboratorio' && historia">

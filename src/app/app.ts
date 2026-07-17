@@ -3,7 +3,7 @@ import * as dicomParser from 'dicom-parser';
 import { AuthResponse, HistoriaClinicaRegional, RegistroClinico, ServicioDisponible } from './models/historia-clinica.model';
 import { RepositorioClinicoService } from './services/repositorio-clinico';
 
-type AppView = 'dashboard' | 'repositorio' | 'paciente' | 'perfil' | 'historia' | 'laboratorio' | 'imagenologia' | 'consulta' | 'registroLaboratorio' | 'registroImagenologia' | 'auditoria';
+type AppView = 'dashboard' | 'repositorio' | 'paciente' | 'perfil' | 'historia' | 'laboratorio' | 'imagenologia' | 'consulta' | 'registroHistoria' | 'registroLaboratorio' | 'registroImagenologia' | 'auditoria';
 
 @Component({
   selector: 'app-root',
@@ -24,6 +24,7 @@ export class App {
   historia?: HistoriaClinicaRegional;
   repositorioCentral: RegistroClinico[] = [];
   auditoria: RegistroClinico[] = [];
+  cie10: RegistroClinico[] = [];
   servicios: ServicioDisponible[] = [];
   estudioSeleccionado?: RegistroClinico;
   dicomMetadata: RegistroClinico = {};
@@ -47,6 +48,7 @@ export class App {
     medicoTratante: 'Alberto Mendez',
     observaciones: 'Paciente valorado desde el repositorio regional.'
   };
+  nuevaHistoria: RegistroClinico = this.crearHistoriaVacia();
   nuevoLaboratorio: RegistroClinico = {
     sede: 'SOLCA Quito',
     fechaResultado: new Date().toISOString().slice(0, 10),
@@ -280,6 +282,49 @@ export class App {
     );
   }
 
+  crearHistoriaClinica(): void {
+    if (!this.sesion || !['ADMIN', 'MEDICO'].includes(this.sesion.role)) {
+      this.error = 'Registrar historia clinica requiere rol MEDICO o ADMIN.';
+      return;
+    }
+    const errorValidacion = this.validarHistoriaClinica();
+    if (errorValidacion) {
+      this.error = errorValidacion;
+      this.exito = '';
+      this.changeDetector.detectChanges();
+      return;
+    }
+    const idPacienteRegional = this.idActualPaciente();
+    this.guardar(
+      () => this.repositorioClinico.crearHistoriaClinica({ ...this.nuevaHistoria, sedeRegistro: this.sedeActual, sedeApertura: this.sedeActual, idPacienteRegional }, this.sesion!.token),
+      'Historia clinica registrada.'
+    );
+  }
+
+  buscarCie10(termino = ''): void {
+    if (!this.sesion) {
+      return;
+    }
+    this.repositorioClinico.buscarCie10(termino, this.sesion.token).subscribe({
+      next: (cie10) => {
+        this.cie10 = cie10;
+        if (!this.nuevaHistoria['codigoCie10'] && cie10.length > 0) {
+          this.seleccionarCie10(cie10[0]);
+        }
+        this.changeDetector.detectChanges();
+      },
+      error: () => {
+        this.error = 'No se pudo consultar CIE10.';
+        this.changeDetector.detectChanges();
+      }
+    });
+  }
+
+  seleccionarCie10(registro: RegistroClinico): void {
+    this.nuevaHistoria['codigoCie10'] = this.valor(registro, 'codigo');
+    this.nuevaHistoria['diagnosticoPrincipal'] = this.valor(registro, 'descripcion');
+  }
+
   crearLaboratorio(): void {
     if (!this.sesion || !['ADMIN', 'LABORATORIO'].includes(this.sesion.role)) {
       this.error = 'Registrar laboratorio requiere rol LABORATORIO o ADMIN.';
@@ -452,7 +497,11 @@ export class App {
   }
 
   totalRegistros(): number {
-    return (this.historia?.consultas.length ?? 0) + (this.historia?.laboratorio.length ?? 0) + (this.historia?.imagenes.length ?? 0);
+    return (this.historia?.historiasClinicas.length ?? 0) + (this.historia?.consultas.length ?? 0) + (this.historia?.laboratorio.length ?? 0) + (this.historia?.imagenes.length ?? 0);
+  }
+
+  totalHistoriasClinicas(): number {
+    return this.historia?.historiasClinicas.length ?? 0;
   }
 
   totalConsultas(): number {
@@ -485,6 +534,7 @@ export class App {
       laboratorio: 'Laboratorio',
       imagenologia: 'Imagenologia',
       consulta: 'Generar Nueva Consulta',
+      registroHistoria: 'Registrar Historia Clinica',
       registroLaboratorio: 'Registrar Laboratorio',
       registroImagenologia: 'Enviar DICOM',
       auditoria: 'Auditoria'
@@ -515,6 +565,9 @@ export class App {
     this.activeView = vista;
     if (vista === 'auditoria' && this.auditoria.length === 0) {
       this.cargarAuditoria();
+    }
+    if (vista === 'registroHistoria' && this.cie10.length === 0) {
+      this.buscarCie10('c');
     }
     this.changeDetector.detectChanges();
   }
@@ -573,6 +626,12 @@ export class App {
       'sedeOrigen',
       'fechaConsulta',
       'diagnostico',
+      'idHistoriaClinica',
+      'fechaApertura',
+      'codigoCie10',
+      'diagnosticoPrincipal',
+      'motivoConsulta',
+      'estadioClinico',
       'fechaResultado',
       'tipoExamen',
       'resultadoLaboratorio',
@@ -631,6 +690,22 @@ export class App {
     }
     if (!this.requerido(this.nuevoLaboratorio['resultado'])) {
       return 'El resultado de laboratorio es obligatorio.';
+    }
+    return '';
+  }
+
+  private validarHistoriaClinica(): string {
+    if (!this.requerido(this.nuevaHistoria['codigoCie10'])) {
+      return 'Seleccione un diagnostico CIE10.';
+    }
+    if (!this.requerido(this.nuevaHistoria['motivoConsulta'])) {
+      return 'El motivo de consulta de la historia clinica es obligatorio.';
+    }
+    if (!this.requerido(this.nuevaHistoria['enfermedadActual'])) {
+      return 'La enfermedad actual es obligatoria.';
+    }
+    if (!this.requerido(this.nuevaHistoria['planTratamiento'])) {
+      return 'El plan terapeutico es obligatorio.';
     }
     return '';
   }
@@ -759,6 +834,28 @@ export class App {
       sexo: '',
       direccion: '',
       telefono: ''
+    };
+  }
+
+  private crearHistoriaVacia(): RegistroClinico {
+    return {
+      estadoHistoria: 'ACTIVA',
+      fechaApertura: new Date().toISOString().slice(0, 10),
+      motivoConsulta: '',
+      enfermedadActual: '',
+      codigoCie10: '',
+      diagnosticoPrincipal: '',
+      tipoCancer: '',
+      localizacionTumor: '',
+      estadioClinico: '',
+      clasificacionTnm: '',
+      baseDiagnostica: 'Biopsia',
+      estadoFuncionalEcog: '1',
+      intencionTratamiento: 'Curativo',
+      planTratamiento: '',
+      medicoResponsable: 'Alberto Mendez',
+      consentimientoInformado: 'SI',
+      estadoActualPaciente: 'En evaluacion'
     };
   }
 

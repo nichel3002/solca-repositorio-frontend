@@ -930,8 +930,8 @@ button:disabled {
 .repository-row {
   display: grid;
   gap: 10px;
-  grid-template-columns: 130px 170px 170px 110px 160px 170px 150px 130px 220px 140px 150px 180px 130px 110px 220px 190px 90px;
-  min-width: 2600px;
+  grid-template-columns: repeat(23, minmax(130px, 1fr));
+  min-width: 3300px;
   padding: 10px 12px;
 }
 
