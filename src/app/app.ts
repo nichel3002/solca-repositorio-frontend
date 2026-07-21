@@ -23,6 +23,9 @@ export class App {
   sesion?: AuthResponse;
   historia?: HistoriaClinicaRegional;
   repositorioCentral: RegistroClinico[] = [];
+  repositorioExpandido: Record<string, boolean> = {};
+  repositorioDetalleClave = '';
+  readonly limiteRepositorio = 3;
   auditoria: RegistroClinico[] = [];
   cie10: RegistroClinico[] = [];
   cie10Termino = '';
@@ -207,20 +210,25 @@ export class App {
   cargarRepositorioCentral(): void {
     if (!this.sesion || !this.historia?.paciente) {
       this.repositorioCentral = [];
+      this.cerrarDetalleRepositorio();
       return;
     }
     const idPacienteRegional = this.valor(this.historia.paciente, 'idPacienteRegional');
     if (idPacienteRegional === 'No registrado') {
       this.repositorioCentral = [];
+      this.cerrarDetalleRepositorio();
       return;
     }
     this.repositorioClinico.obtenerRepositorioClinicoPorPaciente(idPacienteRegional, this.sesion.token).subscribe({
       next: (registros) => {
         this.repositorioCentral = registros;
+        this.repositorioExpandido = {};
+        this.cerrarDetalleRepositorio();
         this.changeDetector.detectChanges();
       },
       error: () => {
         this.repositorioCentral = [];
+        this.cerrarDetalleRepositorio();
         this.error = 'No se pudo cargar la tabla central del repositorio.';
         this.changeDetector.detectChanges();
       }
@@ -598,7 +606,63 @@ export class App {
   }
 
   registrosRepositorioPorTipo(tipo: string): RegistroClinico[] {
-    return this.repositorioCentral.filter((registro) => this.valor(registro, 'tipoRegistro') === tipo);
+    return this.repositorioCentral
+      .filter((registro) => this.valor(registro, 'tipoRegistro') === tipo)
+      .sort((a, b) => this.fechaOrdenRepositorio(b).localeCompare(this.fechaOrdenRepositorio(a)));
+  }
+
+  seccionesClinicasRepositorio(): string[] {
+    return ['CONSULTA', 'RESULTADO_LABORATORIO', 'ESTUDIO_IMAGEN'];
+  }
+
+  registrosVisiblesRepositorio(tipo: string): RegistroClinico[] {
+    const registros = this.registrosRepositorioPorTipo(tipo);
+    return this.repositorioExpandido[tipo] ? registros : registros.slice(0, this.limiteRepositorio);
+  }
+
+  alternarVerMasRepositorio(tipo: string): void {
+    this.repositorioExpandido[tipo] = !this.repositorioExpandido[tipo];
+  }
+
+  alternarDetalleRepositorio(tipo: string, indice: number): void {
+    const clave = this.claveDetalleRepositorio(tipo, indice);
+    this.repositorioDetalleClave = this.repositorioDetalleClave === clave ? '' : clave;
+  }
+
+  cerrarDetalleRepositorio(): void {
+    this.repositorioDetalleClave = '';
+  }
+
+  registroDetalleRepositorio(): RegistroClinico | undefined {
+    if (!this.repositorioDetalleClave) {
+      return undefined;
+    }
+    const [tipo, indiceTexto] = this.repositorioDetalleClave.split(':');
+    const indice = Number(indiceTexto);
+    return Number.isNaN(indice) ? undefined : this.registrosRepositorioPorTipo(tipo)[indice];
+  }
+
+  camposPacienteRepositorio(): string[] {
+    return ['idPacienteRegional', 'cedula', 'nombres', 'apellidos', 'sedeOrigen', 'fechaNacimiento', 'sexo', 'telefono'];
+  }
+
+  registroPacienteRepositorio(): RegistroClinico {
+    return this.registrosRepositorioPorTipo('PACIENTE')[0] ?? this.historia?.paciente ?? {};
+  }
+
+  resumenRegistroRepositorio(registro: RegistroClinico): string {
+    const tipo = this.valor(registro, 'tipoRegistro');
+    const camposPorTipo: Record<string, string[]> = {
+      CONSULTA: ['medicoTratante', 'observaciones'],
+      RESULTADO_LABORATORIO: ['resultadoLaboratorio', 'resultado', 'unidad'],
+      ESTUDIO_IMAGEN: ['descripcionImagen', 'descripcion', 'estadoEnvio']
+    };
+    const resumen = (camposPorTipo[tipo] ?? [])
+      .map((campo) => this.valorFormularioRepositorio(registro, campo))
+      .filter((valor) => valor !== 'No registrado')
+      .slice(0, 2)
+      .join(' - ');
+    return resumen || 'Click para ver el detalle completo.';
   }
 
   tituloGrupoRepositorio(tipo: string): string {
@@ -690,6 +754,15 @@ export class App {
     const fila = this.filaRepositorio(registro);
     const valor = this.valorPlano(fila[campo]);
     return valor || 'No registrado';
+  }
+
+  private claveDetalleRepositorio(tipo: string, indice: number): string {
+    return `${tipo}:${indice}`;
+  }
+
+  private fechaOrdenRepositorio(registro: RegistroClinico): string {
+    const fecha = this.fechaRepositorio(registro);
+    return fecha === 'No registrado' ? '' : fecha;
   }
 
   tituloVista(): string {

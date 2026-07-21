@@ -239,29 +239,68 @@
       </div>
 
       <div class="repository-form-view" *ngIf="repositorioCentral.length > 0">
-        <section class="repository-form-section" *ngFor="let tipo of tiposRepositorioOrdenados()">
-          <div class="repository-section-head">
-            <span class="material-symbols-outlined">{{ iconoGrupoRepositorio(tipo) }}</span>
+        <section class="repository-patient-card">
+          <div class="repository-section-head compact">
+            <span class="material-symbols-outlined">badge</span>
             <div>
-              <h4>{{ tituloGrupoRepositorio(tipo) }}</h4>
-              <p>{{ registrosRepositorioPorTipo(tipo).length }} registro(s) encontrados en el repositorio.</p>
+              <h4>Datos del paciente</h4>
+              <p>Identificacion regional principal.</p>
             </div>
           </div>
-
-          <article class="repository-record-card" *ngFor="let registro of registrosRepositorioPorTipo(tipo); let indice = index">
-            <div class="repository-record-title">
-              <strong>{{ tituloRegistroRepositorio(registro, indice) }}</strong>
-              <span>{{ fechaRepositorio(registro) }}</span>
+          <dl class="repository-form-grid compact-grid">
+            <div *ngFor="let campo of camposPacienteRepositorio()">
+              <dt>{{ etiqueta(campo) }}</dt>
+              <dd>{{ valorFormularioRepositorio(registroPacienteRepositorio(), campo) }}</dd>
             </div>
-            <dl class="repository-form-grid">
-              <ng-container *ngFor="let campo of camposFormularioRepositorio(registro)">
-                <div>
-                  <dt>{{ etiqueta(campo) }}</dt>
-                  <dd>{{ valorFormularioRepositorio(registro, campo) }}</dd>
-                </div>
-              </ng-container>
-            </dl>
-          </article>
+          </dl>
+        </section>
+
+        <div class="repository-section-grid">
+          <section class="repository-form-section" *ngFor="let tipo of seccionesClinicasRepositorio()">
+            <div class="repository-section-head">
+              <span class="material-symbols-outlined">{{ iconoGrupoRepositorio(tipo) }}</span>
+              <div>
+                <h4>{{ tituloGrupoRepositorio(tipo) }}</h4>
+                <p>{{ registrosRepositorioPorTipo(tipo).length }} registro(s), ordenados por fecha.</p>
+              </div>
+            </div>
+
+            <div class="repository-list" *ngIf="registrosRepositorioPorTipo(tipo).length > 0">
+              <button type="button" class="repository-list-item" *ngFor="let registro of registrosVisiblesRepositorio(tipo); let indice = index" (click)="alternarDetalleRepositorio(tipo, indice)">
+                <span>
+                  <strong>{{ tituloRegistroRepositorio(registro, indice) }}</strong>
+                  <small>{{ resumenRegistroRepositorio(registro) }}</small>
+                </span>
+                <em>{{ fechaRepositorio(registro) }}</em>
+              </button>
+            </div>
+
+            <p class="empty" *ngIf="registrosRepositorioPorTipo(tipo).length === 0">Sin registros en esta seccion.</p>
+
+            <button type="button" class="link-action" *ngIf="registrosRepositorioPorTipo(tipo).length > limiteRepositorio" (click)="alternarVerMasRepositorio(tipo)">
+              {{ repositorioExpandido[tipo] ? 'Ver menos' : 'Ver mas' }}
+            </button>
+          </section>
+        </div>
+
+        <section class="repository-detail-panel" *ngIf="registroDetalleRepositorio() as registroDetalle">
+          <div class="repository-detail-head">
+            <div>
+              <span>{{ tituloGrupoRepositorio(valor(registroDetalle, 'tipoRegistro')) }}</span>
+              <h4>{{ tituloRegistroRepositorio(registroDetalle, 0) }}</h4>
+            </div>
+            <button type="button" class="icon-button" (click)="cerrarDetalleRepositorio()" title="Cerrar detalle">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+          <dl class="repository-form-grid">
+            <ng-container *ngFor="let campo of camposFormularioRepositorio(registroDetalle)">
+              <div>
+                <dt>{{ etiqueta(campo) }}</dt>
+                <dd>{{ valorFormularioRepositorio(registroDetalle, campo) }}</dd>
+              </div>
+            </ng-container>
+          </dl>
         </section>
       </div>
       <p class="empty" *ngIf="!historia">Primero consulte un paciente por cedula o Master ID para cargar el repositorio central.</p>

@@ -936,6 +936,13 @@ button:disabled {
   gap: 18px;
 }
 
+.repository-section-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.repository-patient-card,
 .repository-form-section {
   border: 1px solid #d7dce4;
   background: #fbfcfe;
@@ -948,6 +955,10 @@ button:disabled {
   display: flex;
   gap: 12px;
   padding: 14px 16px;
+}
+
+.repository-section-head.compact {
+  border-bottom: 0;
 }
 
 .repository-section-head .material-symbols-outlined {
@@ -970,35 +981,113 @@ button:disabled {
   margin-top: 3px;
 }
 
-.repository-record-card {
+.repository-list {
+  display: grid;
+}
+
+.repository-list-item {
   background: #fff;
+  border: 0;
   border-top: 1px solid #e0e3e5;
-  padding: 16px;
-}
-
-.repository-record-card:first-of-type {
-  border-top: 0;
-}
-
-.repository-record-title {
-  align-items: flex-start;
+  color: inherit;
+  cursor: pointer;
   display: flex;
   gap: 12px;
   justify-content: space-between;
-  margin-bottom: 14px;
+  padding: 16px;
+  text-align: left;
+  width: 100%;
 }
 
-.repository-record-title strong {
+.repository-list-item:first-of-type {
+  border-top: 0;
+}
+
+.repository-list-item:hover {
+  background: #f2f7ff;
+}
+
+.repository-list-item strong {
   color: #00346f;
-  font-size: 16px;
+  display: block;
+  font-size: 15px;
   overflow-wrap: anywhere;
 }
 
-.repository-record-title span {
+.repository-list-item small {
+  color: #5e6673;
+  display: block;
+  line-height: 1.35;
+  margin-top: 5px;
+}
+
+.repository-list-item em {
   color: #5e6673;
   font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
+  font-style: normal;
   white-space: nowrap;
+}
+
+.link-action {
+  background: #eef2f6;
+  border: 0;
+  border-top: 1px solid #d7dce4;
+  color: #00346f;
+  cursor: pointer;
+  font-weight: 800;
+  padding: 12px 16px;
+  text-align: center;
+  width: 100%;
+}
+
+.link-action:hover {
+  background: #dfe9f6;
+}
+
+.repository-detail-panel {
+  border: 1px solid #00346f;
+  background: #fff;
+}
+
+.repository-detail-head {
+  align-items: center;
+  background: #eef2f6;
+  border-bottom: 1px solid #d7dce4;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  padding: 14px 16px;
+}
+
+.repository-detail-head span {
+  color: #5e6673;
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.repository-detail-head h4 {
+  color: #00346f;
+  font-size: 18px;
+  margin: 3px 0 0;
+}
+
+.icon-button {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #d7dce4;
+  color: #00346f;
+  cursor: pointer;
+  display: inline-flex;
+  height: 38px;
+  justify-content: center;
+  width: 38px;
+}
+
+.icon-button:hover {
+  background: #dfe9f6;
 }
 
 .repository-form-grid {
@@ -1006,6 +1095,11 @@ button:disabled {
   gap: 12px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   margin: 0;
+  padding: 16px;
+}
+
+.repository-form-grid.compact-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .repository-form-grid div {
@@ -1099,6 +1193,7 @@ button:disabled {
   .patient-master,
   .dashboard-grid,
   .services-grid,
+  .repository-section-grid,
   .repository-form-grid {
     grid-template-columns: 1fr;
   }
@@ -1123,11 +1218,16 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 
-  .repository-record-title {
+  .repository-form-grid.compact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .repository-list-item,
+  .repository-detail-head {
     flex-direction: column;
   }
 
-  .repository-record-title span {
+  .repository-list-item em {
     white-space: normal;
   }
 }
