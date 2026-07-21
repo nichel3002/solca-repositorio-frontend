@@ -931,57 +931,104 @@ button:disabled {
   padding: 10px 12px;
 }
 
-.repository-table {
-  border: 1px solid #d7dce4;
-  max-height: 620px;
-  overflow-x: auto;
-  overflow-y: auto;
-}
-
-.repository-grid {
-  border-collapse: collapse;
-  min-width: 1900px;
-  width: max-content;
-}
-
-.repository-grid th,
-.repository-grid td {
-  border-bottom: 1px solid #e0e3e5;
-  color: #191c1e;
-  max-width: 260px;
-  min-width: 140px;
-  overflow-wrap: anywhere;
-  padding: 12px;
-  text-align: left;
-  vertical-align: top;
-}
-
-.repository-grid th {
-  background: #eef2f6;
-  color: #00346f;
-  font-weight: 800;
-  position: sticky;
-  top: 0;
-  z-index: 1;
-}
-
-.repository-grid tr:last-child td {
-  border-bottom: 0;
-}
-
-.repository-grid td:empty::after {
-  color: #8b94a1;
-  content: "-";
-}
-
-.repository-detail {
+.repository-form-view {
   display: grid;
-  gap: 4px;
+  gap: 18px;
 }
 
-.repository-detail small {
-  color: #2f343b;
-  line-height: 1.35;
+.repository-form-section {
+  border: 1px solid #d7dce4;
+  background: #fbfcfe;
+}
+
+.repository-section-head {
+  align-items: center;
+  background: #eef2f6;
+  border-bottom: 1px solid #d7dce4;
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+}
+
+.repository-section-head .material-symbols-outlined {
+  color: #006970;
+}
+
+.repository-section-head h4,
+.repository-section-head p {
+  margin: 0;
+}
+
+.repository-section-head h4 {
+  color: #00346f;
+  font-size: 18px;
+}
+
+.repository-section-head p {
+  color: #5e6673;
+  font-size: 13px;
+  margin-top: 3px;
+}
+
+.repository-record-card {
+  background: #fff;
+  border-top: 1px solid #e0e3e5;
+  padding: 16px;
+}
+
+.repository-record-card:first-of-type {
+  border-top: 0;
+}
+
+.repository-record-title {
+  align-items: flex-start;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.repository-record-title strong {
+  color: #00346f;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+
+.repository-record-title span {
+  color: #5e6673;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.repository-form-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+}
+
+.repository-form-grid div {
+  background: #f7f9fb;
+  border: 1px solid #d7dce4;
+  min-height: 74px;
+  padding: 10px 12px;
+}
+
+.repository-form-grid dt {
+  color: #5e6673;
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.repository-form-grid dd {
+  color: #191c1e;
+  font-family: 'JetBrains Mono', monospace;
+  margin: 6px 0 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
 }
 
 .registration-card {
@@ -1051,7 +1098,8 @@ button:disabled {
   .search-hero,
   .patient-master,
   .dashboard-grid,
-  .services-grid {
+  .services-grid,
+  .repository-form-grid {
     grid-template-columns: 1fr;
   }
 
@@ -1073,6 +1121,14 @@ button:disabled {
 
   .repository-summary {
     grid-template-columns: 1fr;
+  }
+
+  .repository-record-title {
+    flex-direction: column;
+  }
+
+  .repository-record-title span {
+    white-space: normal;
   }
 }
 

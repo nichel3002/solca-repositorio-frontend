@@ -588,6 +588,110 @@ export class App {
     return detalles.length > 0 ? detalles : [this.valor(registro, 'datosJson')];
   }
 
+  tiposRepositorioOrdenados(): string[] {
+    const orden = ['PACIENTE', 'HISTORIA_CLINICA', 'CONSULTA', 'RESULTADO_LABORATORIO', 'ESTUDIO_IMAGEN'];
+    const tipos = new Set(this.repositorioCentral.map((registro) => this.valor(registro, 'tipoRegistro')));
+    return [
+      ...orden.filter((tipo) => tipos.has(tipo)),
+      ...Array.from(tipos).filter((tipo) => tipo !== 'No registrado' && !orden.includes(tipo))
+    ];
+  }
+
+  registrosRepositorioPorTipo(tipo: string): RegistroClinico[] {
+    return this.repositorioCentral.filter((registro) => this.valor(registro, 'tipoRegistro') === tipo);
+  }
+
+  tituloGrupoRepositorio(tipo: string): string {
+    const titulos: Record<string, string> = {
+      PACIENTE: 'Paciente maestro regional',
+      HISTORIA_CLINICA: 'Historia clinica',
+      CONSULTA: 'Consultas clinicas',
+      RESULTADO_LABORATORIO: 'Laboratorio clinico',
+      ESTUDIO_IMAGEN: 'Imagenologia / PACS'
+    };
+    return titulos[tipo] ?? this.etiqueta(tipo.toLowerCase());
+  }
+
+  iconoGrupoRepositorio(tipo: string): string {
+    const iconos: Record<string, string> = {
+      PACIENTE: 'badge',
+      HISTORIA_CLINICA: 'clinical_notes',
+      CONSULTA: 'stethoscope',
+      RESULTADO_LABORATORIO: 'biotech',
+      ESTUDIO_IMAGEN: 'radiology'
+    };
+    return iconos[tipo] ?? 'folder_open';
+  }
+
+  tituloRegistroRepositorio(registro: RegistroClinico, indice: number): string {
+    const tipo = this.valor(registro, 'tipoRegistro');
+    const tituloPorTipo: Record<string, string[]> = {
+      PACIENTE: ['nombres', 'apellidos'],
+      HISTORIA_CLINICA: ['idHistoriaClinica', 'diagnosticoPrincipal'],
+      CONSULTA: ['especialidad', 'diagnostico'],
+      RESULTADO_LABORATORIO: ['tipoExamen', 'resultadoLaboratorio', 'resultado'],
+      ESTUDIO_IMAGEN: ['modalidad', 'descripcionImagen', 'descripcion']
+    };
+    const partes = (tituloPorTipo[tipo] ?? ['modulo'])
+      .map((campo) => this.valorFormularioRepositorio(registro, campo))
+      .filter((valor) => valor !== 'No registrado');
+    return partes.length > 0 ? partes.slice(0, 2).join(' - ') : `Registro ${indice + 1}`;
+  }
+
+  camposFormularioRepositorio(registro: RegistroClinico): string[] {
+    const fila = this.filaRepositorio(registro);
+    const tipo = this.valor(registro, 'tipoRegistro');
+    const camposPorTipo: Record<string, string[]> = {
+      PACIENTE: [
+        'idPacienteRegional', 'cedula', 'nombres', 'apellidos', 'sedeOrigen',
+        'fechaNacimiento', 'sexo', 'direccion', 'telefono'
+      ],
+      HISTORIA_CLINICA: [
+        'idHistoriaClinica', 'idPacienteRegional', 'sede', 'fechaApertura',
+        'estadoHistoria', 'codigoCie10', 'diagnosticoPrincipal', 'diagnosticosSecundarios',
+        'motivoConsulta', 'enfermedadActual', 'fechaInicioSintomas',
+        'signosSintomasPrincipales', 'tipoCancer', 'localizacionTumor',
+        'lateralidad', 'estadioClinico', 'clasificacionTnm', 'baseDiagnostica',
+        'peso', 'talla', 'presionArterial', 'estadoFuncionalEcog',
+        'examenFisicoGeneral', 'planTratamiento', 'intencionTratamiento',
+        'medicoResponsable', 'proximaCita'
+      ],
+      CONSULTA: [
+        'idPacienteRegional', 'sede', 'fechaConsulta', 'especialidad',
+        'diagnostico', 'medicoTratante', 'observaciones'
+      ],
+      RESULTADO_LABORATORIO: [
+        'idPacienteRegional', 'sede', 'fechaResultado', 'tipoExamen',
+        'resultadoLaboratorio', 'resultado', 'unidad', 'rangoReferencia'
+      ],
+      ESTUDIO_IMAGEN: [
+        'idPacienteRegional', 'sede', 'fechaEstudio', 'modalidad',
+        'descripcionImagen', 'descripcion', 'urlPacs', 'informeRadiologico',
+        'archivoDicom', 'protocoloEnvio', 'estadoEnvio', 'tieneDicom'
+      ]
+    };
+    const tecnicos = new Set(['datosJson', 'tipoRegistro', 'modulo', 'idOrigen']);
+    const preferidos = camposPorTipo[tipo] ?? [];
+    const campos = new Set<string>();
+    preferidos.forEach((campo) => {
+      if (this.valorPlano(fila[campo]) !== '') {
+        campos.add(campo);
+      }
+    });
+    Object.keys(fila).forEach((campo) => {
+      if (!tecnicos.has(campo) && this.valorPlano(fila[campo]) !== '') {
+        campos.add(campo);
+      }
+    });
+    return Array.from(campos);
+  }
+
+  valorFormularioRepositorio(registro: RegistroClinico, campo: string): string {
+    const fila = this.filaRepositorio(registro);
+    const valor = this.valorPlano(fila[campo]);
+    return valor || 'No registrado';
+  }
+
   tituloVista(): string {
     const titulos: Record<AppView, string> = {
       dashboard: 'Busqueda de Pacientes',

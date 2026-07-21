@@ -221,37 +221,50 @@
     <section class="module-card repository-panel" *ngIf="activeView === 'repositorio'">
       <div class="panel-title-row">
         <div class="section-title">
-          <span class="material-symbols-outlined">table_view</span>
+          <span class="material-symbols-outlined">assignment</span>
           <div>
-            <h3>Tabla central del repositorio</h3>
-            <p>Paciente maestro, consultas, laboratorio e imagenologia consolidados en una sola vista.</p>
+            <h3>Repositorio clinico del paciente</h3>
+            <p>Vista tipo formulario para lectura medica de la informacion consolidada.</p>
           </div>
         </div>
         <button type="button" class="secondary-action" (click)="cargarRepositorioCentral()" [disabled]="!historia">
-          Actualizar tabla
+          Actualizar repositorio
         </button>
       </div>
       <div class="repository-summary" *ngIf="historia">
         <span>Paciente maestro: {{ valor(historia.paciente, 'idPacienteRegional') }}</span>
-        <span>Filas centrales: {{ repositorioCentral.length }}</span>
+        <span>Registros centrales: {{ repositorioCentral.length }}</span>
         <span>Laboratorio: {{ totalLaboratorio() }}</span>
         <span>Imagenologia: {{ totalImagenes() }}</span>
       </div>
-      <div class="repository-table" *ngIf="repositorioCentral.length > 0">
-        <table class="repository-grid">
-          <thead>
-            <tr>
-              <th *ngFor="let columna of columnasRepositorio()">{{ etiqueta(columna) }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let registro of repositorioCentral">
-              <td *ngFor="let columna of columnasRepositorio()">{{ valorRepositorio(registro, columna) }}</td>
-            </tr>
-          </tbody>
-        </table>
+
+      <div class="repository-form-view" *ngIf="repositorioCentral.length > 0">
+        <section class="repository-form-section" *ngFor="let tipo of tiposRepositorioOrdenados()">
+          <div class="repository-section-head">
+            <span class="material-symbols-outlined">{{ iconoGrupoRepositorio(tipo) }}</span>
+            <div>
+              <h4>{{ tituloGrupoRepositorio(tipo) }}</h4>
+              <p>{{ registrosRepositorioPorTipo(tipo).length }} registro(s) encontrados en el repositorio.</p>
+            </div>
+          </div>
+
+          <article class="repository-record-card" *ngFor="let registro of registrosRepositorioPorTipo(tipo); let indice = index">
+            <div class="repository-record-title">
+              <strong>{{ tituloRegistroRepositorio(registro, indice) }}</strong>
+              <span>{{ fechaRepositorio(registro) }}</span>
+            </div>
+            <dl class="repository-form-grid">
+              <ng-container *ngFor="let campo of camposFormularioRepositorio(registro)">
+                <div>
+                  <dt>{{ etiqueta(campo) }}</dt>
+                  <dd>{{ valorFormularioRepositorio(registro, campo) }}</dd>
+                </div>
+              </ng-container>
+            </dl>
+          </article>
+        </section>
       </div>
-      <p class="empty" *ngIf="!historia">Primero consulte un paciente por cedula o Master ID para cargar la tabla central.</p>
+      <p class="empty" *ngIf="!historia">Primero consulte un paciente por cedula o Master ID para cargar el repositorio central.</p>
       <p class="empty" *ngIf="historia && repositorioCentral.length === 0">Sin registros cargados en el repositorio central para este paciente.</p>
     </section>
 
